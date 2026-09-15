@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mind & Perception Assessment - Quiz</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-background">
+        <div class="bg-shape shape-1"></div>
+        <div class="bg-shape shape-2"></div>
+    </div>
+
+    <div class="container">
+        <!-- Top Header -->
+        <header class="navbar">
+            <div class="logo">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+                    <path d="M2 12h20"></path>
+                </svg>
+                <span>MindSpectrum</span>
+            </div>
+            <div class="header-tag">Inner Perspective Assessment</div>
+        </header>
+
+        <!-- MAIN CONTAINER WITH DYNAMIC VIEWS -->
+        <main class="main-card">
+            
+            <!-- VIEW 1: WELCOME & NAME ENTRY -->
+            <section id="welcome-view" class="view active">
+                <div class="welcome-badge">
+                    <span class="pulse-dot"></span> Self-Discovery Quiz
+                </div>
+                <h1 class="title">Discover Your Mindset & Inner Spectrum</h1>
+                <p class="description">
+                    Explore how your beliefs, focus, and emotional perceptions shape your world. Enter your name below to begin your personalized assessment.
+                </p>
+
+                <form id="start-form" onsubmit="handleStart(event)">
+                    <div class="input-group">
+                        <label for="username">Your Full Name</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <input type="text" id="username" placeholder="e.g. Alex Morgan" required autocomplete="name" />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-large">
+                        <span>Begin Assessment</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                </form>
+
+                <div class="features-row">
+                    <div class="feature-item">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span>6 Deep Questions</span>
+                    </div>
+                    <div class="feature-item">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span>Personalized Analysis</span>
+                    </div>
+                    <div class="feature-item">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span>Instant Results</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 2: QUIZ ASSESSMENT FLOW -->
+            <section id="quiz-view" class="view">
+                <div class="quiz-header">
+                    <div class="progress-info">
+                        <span id="question-counter">Question 1 of 6</span>
+                        <span id="progress-percent">16% Completed</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div id="progress-bar" class="progress-bar" style="width: 16.66%;"></div>
+                    </div>
+                </div>
+
+                <div class="question-container">
+                    <h2 id="question-text" class="question-text">Question text will load here...</h2>
+                    <p class="question-hint">Select the option that best resonates with your perspective:</p>
+                    
+                    <div id="options-container" class="options-grid">
+                        <!-- Options will be dynamically rendered here -->
+                    </div>
+                </div>
+
+                <div class="quiz-footer">
+                    <button id="btn-prev" class="btn btn-secondary" onclick="navigateQuestion(-1)" disabled>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        <span>Previous</span>
+                    </button>
+                    <button id="btn-next" class="btn btn-primary" onclick="navigateQuestion(1)" disabled>
+                        <span id="btn-next-text">Next Question</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </section>
+
+            <!-- VIEW 3: RESULTS & ANALYSIS DASHBOARD -->
+            <section id="results-view" class="view">
+                <div class="results-header">
+                    <div class="completion-badge">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        Assessment Completed
+                    </div>
+                    <h1 class="results-title">Mindset Analysis for <span id="user-display-name" class="highlight-name">User</span></h1>
+                    <p class="results-subtitle">Based on your responses, here is a breakdown of your inner spectrum, mind state, and perceptual philosophy.</p>
+                </div>
+
+                <!-- Primary Archetype Card -->
+                <div class="archetype-card">
+                    <div class="archetype-icon-wrapper">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                    </div>
+                    <div class="archetype-details">
+                        <span class="archetype-label">Your Mindset Archetype</span>
+                        <h2 id="archetype-title" class="archetype-title">Loading Archetype...</h2>
+                        <p id="archetype-description" class="archetype-description">Processing your results...</p>
+                    </div>
+                </div>
+
+                <!-- Dimension Metrics Cards Grid -->
+                <h3 class="section-heading">Dimension Metrics Breakdown</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Mind Power & Intention</span>
+                            <span id="metric-intent-score" class="metric-score">80%</span>
+                        </div>
+                        <div class="metric-bar-bg"><div id="bar-intent" class="metric-bar-fill" style="width: 80%;"></div></div>
+                        <p id="metric-intent-desc" class="metric-desc">Belief in thoughts shaping reality.</p>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Clarity & Mental Peace</span>
+                            <span id="metric-clarity-score" class="metric-score">75%</span>
+                        </div>
+                        <div class="metric-bar-bg"><div id="bar-clarity" class="metric-bar-fill" style="width: 75%;"></div></div>
+                        <p id="metric-clarity-desc" class="metric-desc">Level of mental organization and calm.</p>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Action & Growth Philosophy</span>
+                            <span id="metric-action-score" class="metric-score">85%</span>
+                        </div>
+                        <div class="metric-bar-bg"><div id="bar-action" class="metric-bar-fill" style="width: 85%;"></div></div>
+                        <p id="metric-action-desc" class="metric-desc">How knowledge is converted to real change.</p>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Emotional Autonomy & Love</span>
+                            <span id="metric-love-score" class="metric-score">70%</span>
+                        </div>
+                        <div class="metric-bar-bg"><div id="bar-love" class="metric-bar-fill" style="width: 70%;"></div></div>
+                        <p id="metric-love-desc" class="metric-desc">Balance between connection & freedom.</p>
+                    </div>
+                </div>
+
+                <!-- Comprehensive Analysis Insights -->
+                <h3 class="section-heading">Detailed Insights & Insights Breakdown</h3>
+                <div id="insights-container" class="insights-list">
+                    <!-- Dynamic insights rendered by JavaScript -->
+                </div>
+
+                <!-- Responses Summary Accordion / Review -->
+                <h3 class="section-heading">Your Question & Answer Choices</h3>
+                <div id="answers-summary" class="answers-summary-list">
+                    <!-- Dynamic answer summary -->
+                </div>
+
+                <!-- Footer Action Buttons -->
+                <div class="results-actions">
+                    <button class="btn btn-secondary" onclick="resetQuiz()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="1 4 1 10 7 10"></polyline>
+                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                        </svg>
+                        <span>Retake Quiz</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="window.print()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                            <rect x="6" y="14" width="12" height="8"></rect>
+                        </svg>
+                        <span>Print / Save Results</span>
+                    </button>
+                </div>
+            </section>
+
+        </main>
+        
+        <footer class="app-footer">
+            <p>© <span id="year">2026</span> MindSpectrum Quiz. Crafted with clarity and simplicity.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
