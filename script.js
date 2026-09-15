@@ -204,13 +204,6 @@ function selectOption(optIdx) {
     // Enable next button
     const btnNext = document.getElementById("btn-next");
     btnNext.disabled = false;
-
-    // Optional smooth auto-advance after slight delay if user clicks
-    setTimeout(() => {
-        if (state.currentQuestionIndex < quizData.length - 1) {
-            navigateQuestion(1);
-        }
-    }, 280);
 }
 
 /**
