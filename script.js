@@ -1,9 +1,11 @@
 /**
- * Mind & Perception Assessment - Script with Points Scoring System
- * ----------------------------------------------------------------
+ * Mind & Perception Assessment - Script with Points Scoring & Millisecond Precision Timer
+ * ----------------------------------------------------------------------------------------
  * Rules:
- * Each question has 1 designated correct answer (+1 Point per correct answer).
- * Total Maximum Score = 6 Points.
+ * - Each question has 1 designated correct answer (+1 Point per correct answer).
+ * - Total Maximum Score = 6 Points.
+ * - Millisecond Precision Timer tracks exact completion speed.
+ * - Single-Attempt assessment (No Retake option).
  */
 
 // Global Quiz State
@@ -102,7 +104,7 @@ function handleStart(event) {
     state.userName = nameInput.value.trim();
     state.currentQuestionIndex = 0;
     state.answers = {};
-    state.startTime = Date.now(); // Record start timestamp
+    state.startTime = performance.now ? (performance.now() + performance.timeOrigin) : Date.now(); // High precision start timestamp
 
     switchView("quiz-view");
     renderQuestion();
@@ -233,10 +235,10 @@ function navigateQuestion(direction) {
 }
 
 /**
- * Calculate Score Points, Archetype, Dimensions, Time Taken & Render Results
+ * Calculate Score Points, Archetype, Dimensions, Millisecond Precision Time Taken & Render Results
  */
 function calculateAndShowResults() {
-    state.endTime = Date.now(); // Record end timestamp
+    state.endTime = performance.now ? (performance.now() + performance.timeOrigin) : Date.now(); // Record end timestamp
 
     // 1. Calculate Score Points (1 point per correct answer)
     let totalPoints = 0;
@@ -249,9 +251,9 @@ function calculateAndShowResults() {
     const maxPoints = quizData.length; // 6
     const scorePercent = Math.round((totalPoints / maxPoints) * 100);
 
-    // Calculate formatted time taken
-    const durationSeconds = Math.max(1, Math.round((state.endTime - state.startTime) / 1000));
-    const formattedTime = formatTimeTaken(durationSeconds);
+    // Calculate exact millisecond duration
+    const totalMs = Math.max(1, Math.round(state.endTime - state.startTime));
+    const formattedTime = formatTimeTakenWithMs(totalMs);
 
     // Update Header Displays
     const nameEl = document.getElementById("user-display-name");
@@ -344,18 +346,16 @@ function calculateAndShowResults() {
 }
 
 /**
- * Format Time Duration (Seconds into formatted string)
+ * Format Duration with Millisecond Precision
  */
-function formatTimeTaken(totalSeconds) {
-    if (totalSeconds < 60) {
-        return `${totalSeconds} sec`;
+function formatTimeTakenWithMs(totalMs) {
+    const seconds = totalMs / 1000;
+    if (seconds < 60) {
+        return `${seconds.toFixed(2)} sec (${totalMs.toLocaleString()} ms)`;
     }
-    const mins = Math.floor(totalSeconds / 60);
-    const secs = totalSeconds % 60;
-    if (secs === 0) {
-        return `${mins} min`;
-    }
-    return `${mins} min ${secs} sec`;
+    const mins = Math.floor(seconds / 60);
+    const secs = (seconds % 60).toFixed(2);
+    return `${mins} min ${secs} sec (${totalMs.toLocaleString()} ms)`;
 }
 
 /**
@@ -537,23 +537,6 @@ function renderAnswersSummary() {
 
         container.appendChild(div);
     });
-}
-
-/**
- * Reset Quiz State
- */
-function resetQuiz() {
-    state.currentQuestionIndex = 0;
-    state.answers = {};
-    state.startTime = null;
-    state.endTime = null;
-    switchView("welcome-view");
-
-    const inputName = document.getElementById("username");
-    if (inputName) {
-        inputName.value = state.userName;
-        inputName.focus();
-    }
 }
 
 /**
