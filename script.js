@@ -1,7 +1,9 @@
 /**
- * Mind & Perception Assessment - Script
- * High-performance, clean JavaScript logic for state management,
- * timer calculation, scoring, archetype evaluation, and UI transitions.
+ * Mind & Perception Assessment - Script with Points Scoring System
+ * ----------------------------------------------------------------
+ * Rules:
+ * Each question has 1 designated correct answer (+1 Point per correct answer).
+ * Total Maximum Score = 6 Points.
  */
 
 // Global Quiz State
@@ -13,7 +15,7 @@ const state = {
     endTime: null
 };
 
-// Quiz Questions & Options Data
+// Quiz Questions & Options Data with Correct Answers
 const quizData = [
     {
         id: 1,
@@ -23,7 +25,8 @@ const quizData = [
             "Maybe, but I’m not sure",
             "No, only physical factors matter",
             "I need more evidence"
-        ]
+        ],
+        correctOption: 0 // "Yes, the mind has a powerful influence"
     },
     {
         id: 2,
@@ -33,7 +36,8 @@ const quizData = [
             "There could be something to it",
             "Interesting, but needs scientific proof",
             "I don’t believe it"
-        ]
+        ],
+        correctOption: 2 // "Interesting, but needs scientific proof"
     },
     {
         id: 3,
@@ -43,7 +47,8 @@ const quizData = [
             "Overactive — thinking about everything at once",
             "Clean & Clear — calm, focused and aware",
             "It depends on the situation"
-        ]
+        ],
+        correctOption: 3 // "It depends on the situation"
     },
     {
         id: 4,
@@ -53,7 +58,8 @@ const quizData = [
             "Meditation & reflection",
             "Knowledge + Meditation",
             "Experience & practice"
-        ]
+        ],
+        correctOption: 2 // "Knowledge + Meditation"
     },
     {
         id: 5,
@@ -63,7 +69,8 @@ const quizData = [
             "Losing your sense of independence",
             "Feeling deeply connected",
             "Depends on the relationship"
-        ]
+        ],
+        correctOption: 0 // "Giving someone control over your emotions"
     },
     {
         id: 6,
@@ -73,7 +80,8 @@ const quizData = [
             "Attachment creates dependency",
             "Love can have both freedom & attachment",
             "It depends on how you love"
-        ]
+        ],
+        correctOption: 0 // "Love gives freedom"
     }
 ];
 
@@ -180,7 +188,7 @@ function renderQuestion() {
     btnNext.disabled = !hasSelected;
 
     if (qIndex === totalQ - 1) {
-        btnNextText.textContent = "See Full Analysis";
+        btnNextText.textContent = "See Score & Analysis";
     } else {
         btnNextText.textContent = "Next Question";
     }
@@ -225,20 +233,53 @@ function navigateQuestion(direction) {
 }
 
 /**
- * Calculate Archetype, Dimensions, Time Taken & Render Results
+ * Calculate Score Points, Archetype, Dimensions, Time Taken & Render Results
  */
 function calculateAndShowResults() {
     state.endTime = Date.now(); // Record end timestamp
+
+    // 1. Calculate Score Points (1 point per correct answer)
+    let totalPoints = 0;
+    quizData.forEach((qItem, qIdx) => {
+        if (state.answers[qIdx] === qItem.correctOption) {
+            totalPoints += 1;
+        }
+    });
+
+    const maxPoints = quizData.length; // 6
+    const scorePercent = Math.round((totalPoints / maxPoints) * 100);
 
     // Calculate formatted time taken
     const durationSeconds = Math.max(1, Math.round((state.endTime - state.startTime) / 1000));
     const formattedTime = formatTimeTaken(durationSeconds);
 
+    // Update Header Displays
     const nameEl = document.getElementById("user-display-name");
-    nameEl.textContent = state.userName || "Friend";
+    if (nameEl) nameEl.textContent = state.userName || "Friend";
 
     const timeEl = document.getElementById("time-taken-display");
     if (timeEl) timeEl.textContent = formattedTime;
+
+    // Render Score Card
+    const scoreNumEl = document.getElementById("score-points-display");
+    if (scoreNumEl) scoreNumEl.textContent = `${totalPoints}/${maxPoints}`;
+
+    const scoreTitleEl = document.getElementById("score-title");
+    const scoreDescEl = document.getElementById("score-summary-text");
+
+    if (totalPoints === maxPoints) {
+        if (scoreTitleEl) scoreTitleEl.textContent = "Perfect Score! 🌟";
+        if (scoreDescEl) scoreDescEl.textContent = `Outstanding! You scored a perfect ${totalPoints} out of ${maxPoints} points (${scorePercent}%).`;
+    } else if (totalPoints >= 4) {
+        if (scoreTitleEl) scoreTitleEl.textContent = "Great Job! 🎯";
+        if (scoreDescEl) scoreDescEl.textContent = `Well done! You scored ${totalPoints} out of ${maxPoints} points (${scorePercent}%).`;
+    } else if (totalPoints >= 2) {
+        if (scoreTitleEl) scoreTitleEl.textContent = "Good Attempt! 👍";
+        if (scoreDescEl) scoreDescEl.textContent = `You scored ${totalPoints} out of ${maxPoints} points (${scorePercent}%).`;
+    } else {
+        if (scoreTitleEl) scoreTitleEl.textContent = "Thought-Provoking Assessment 💡";
+        if (scoreDescEl) scoreDescEl.textContent = `You scored ${totalPoints} out of ${maxPoints} points (${scorePercent}%).`;
+    }
 
     // Extract raw choices
     const a1 = state.answers[0]; // Q1 Mind Influence
@@ -248,7 +289,7 @@ function calculateAndShowResults() {
     const a5 = state.answers[4]; // Q5 Attachment Feeling
     const a6 = state.answers[5]; // Q6 Love & Freedom
 
-    // 1. Calculate Dimension Scores (0 - 100)
+    // Calculate Dimension Scores (0 - 100)
     let intentScore = 50;
     if (a1 === 0) intentScore += 25;
     else if (a1 === 1) intentScore += 15;
@@ -279,7 +320,7 @@ function calculateAndShowResults() {
     else if (a6 === 2) loveScore += 25;
     else if (a6 === 3) loveScore += 20;
 
-    // 2. Evaluate Archetype
+    // Evaluate Archetype
     const archetype = determineArchetype(a1, a2, a3, a4, a5, a6, intentScore, clarityScore, actionScore, loveScore);
 
     // Render Archetype Card
@@ -295,7 +336,7 @@ function calculateAndShowResults() {
     // Render Detailed Insights List
     renderInsights(a1, a2, a3, a4, a5, a6);
 
-    // Render Answers Summary List
+    // Render Question & Answer Breakdown with Correct/Incorrect Badges
     renderAnswersSummary();
 
     // Show Results View
@@ -466,7 +507,7 @@ function renderInsights(a1, a2, a3, a4, a5, a6) {
 }
 
 /**
- * Render Question & Answer Review List
+ * Render Question & Answer Review List with Correct/Incorrect Badges
  */
 function renderAnswersSummary() {
     const container = document.getElementById("answers-summary");
@@ -475,13 +516,25 @@ function renderAnswersSummary() {
     quizData.forEach((item, qIdx) => {
         const selectedOptIdx = state.answers[qIdx];
         const selectedOptText = selectedOptIdx !== undefined ? item.options[selectedOptIdx] : "Not Answered";
+        const isCorrect = selectedOptIdx === item.correctOption;
+        const correctOptText = item.options[item.correctOption];
 
         const div = document.createElement("div");
-        div.className = "summary-item";
+        div.className = `summary-item ${isCorrect ? "correct-item" : "incorrect-item"}`;
+
         div.innerHTML = `
-            <div class="summary-q">Q${qIdx + 1}: ${escapeHtml(item.question)}</div>
-            <div class="summary-a">${escapeHtml(selectedOptText)}</div>
+            <div class="summary-q-header">
+                <span class="summary-q">Q${qIdx + 1}: ${escapeHtml(item.question)}</span>
+                <span class="point-badge ${isCorrect ? "badge-correct" : "badge-incorrect"}">
+                    ${isCorrect ? "✓ +1 Point" : "✗ 0 Points"}
+                </span>
+            </div>
+            <div class="summary-a-user ${isCorrect ? "is-correct" : "is-incorrect"}">
+                <span>Your Answer: ${escapeHtml(selectedOptText)}</span>
+            </div>
+            ${!isCorrect ? `<div class="summary-correct-answer">✓ Correct Answer: ${escapeHtml(correctOptText)}</div>` : ""}
         `;
+
         container.appendChild(div);
     });
 }
