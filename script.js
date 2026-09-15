@@ -1,24 +1,16 @@
 /**
  * Mind & Perception Assessment - Script
- * ------------------------------------
- * Features:
- * - Clean Data: Stores ONLY actual real submissions (No fake/dummy seed data).
- * - Admin Portal: Leaderboard & CSV Export are strictly restricted to Admin (Passcode: admin123).
- * - Privacy: Regular users only see their own personal results.
+ * High-performance, clean JavaScript logic for state management,
+ * timer calculation, scoring, archetype evaluation, and UI transitions.
  */
-
-// Admin Passcode Configuration
-const ADMIN_PASSCODE = "admin123";
-
-// OPTIONAL: Paste your Google Apps Script Web App URL here to auto-sync submissions to Google Sheets
-const GOOGLE_SHEET_WEB_APP_URL = ""; 
 
 // Global Quiz State
 const state = {
     userName: "",
     currentQuestionIndex: 0,
     answers: {}, // Maps question index to selected option index
-    isAdminLoggedIn: false
+    startTime: null,
+    endTime: null
 };
 
 // Quiz Questions & Options Data
@@ -102,6 +94,7 @@ function handleStart(event) {
     state.userName = nameInput.value.trim();
     state.currentQuestionIndex = 0;
     state.answers = {};
+    state.startTime = Date.now(); // Record start timestamp
 
     switchView("quiz-view");
     renderQuestion();
@@ -232,11 +225,20 @@ function navigateQuestion(direction) {
 }
 
 /**
- * Calculate Archetype, Dimensions, Save Participant & Render Results
+ * Calculate Archetype, Dimensions, Time Taken & Render Results
  */
 function calculateAndShowResults() {
+    state.endTime = Date.now(); // Record end timestamp
+
+    // Calculate formatted time taken
+    const durationSeconds = Math.max(1, Math.round((state.endTime - state.startTime) / 1000));
+    const formattedTime = formatTimeTaken(durationSeconds);
+
     const nameEl = document.getElementById("user-display-name");
     nameEl.textContent = state.userName || "Friend";
+
+    const timeEl = document.getElementById("time-taken-display");
+    if (timeEl) timeEl.textContent = formattedTime;
 
     // Extract raw choices
     const a1 = state.answers[0]; // Q1 Mind Influence
@@ -277,13 +279,8 @@ function calculateAndShowResults() {
     else if (a6 === 2) loveScore += 25;
     else if (a6 === 3) loveScore += 20;
 
-    const overallScore = Math.round((intentScore + clarityScore + actionScore + loveScore) / 4);
-
     // 2. Evaluate Archetype
     const archetype = determineArchetype(a1, a2, a3, a4, a5, a6, intentScore, clarityScore, actionScore, loveScore);
-
-    // 3. Save ONLY ACTUAL REAL Participant Record
-    saveRealParticipantRecord(state.userName, archetype.title, overallScore, a1, a2, a3, a4, a5, a6);
 
     // Render Archetype Card
     document.getElementById("archetype-title").textContent = archetype.title;
@@ -306,207 +303,18 @@ function calculateAndShowResults() {
 }
 
 /**
- * Save Real Participant Record (No fake data)
+ * Format Time Duration (Seconds into formatted string)
  */
-function saveRealParticipantRecord(name, archetypeTitle, score, a1, a2, a3, a4, a5, a6) {
-    const today = new Date().toISOString().split("T")[0];
-    const newRecord = {
-        name: name,
-        archetype: archetypeTitle,
-        score: score,
-        date: today,
-        answers: [a1, a2, a3, a4, a5, a6]
-    };
-
-    let realParticipants = [];
-    try {
-        const stored = localStorage.getItem("real_mind_spectrum_participants");
-        if (stored) realParticipants = JSON.parse(stored);
-    } catch (e) {
-        realParticipants = [];
+function formatTimeTaken(totalSeconds) {
+    if (totalSeconds < 60) {
+        return `${totalSeconds} sec`;
     }
-
-    // Append new real participant
-    realParticipants.push(newRecord);
-    localStorage.setItem("real_mind_spectrum_participants", JSON.stringify(realParticipants));
-
-    // Optional Google Sheet Sync
-    if (GOOGLE_SHEET_WEB_APP_URL && GOOGLE_SHEET_WEB_APP_URL.trim().length > 0) {
-        try {
-            fetch(GOOGLE_SHEET_WEB_APP_URL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    timestamp: new Date().toLocaleString(),
-                    name: name,
-                    archetype: archetypeTitle,
-                    score: score + "%",
-                    a1: quizData[0].options[a1] || "",
-                    a2: quizData[1].options[a2] || "",
-                    a3: quizData[2].options[a3] || "",
-                    a4: quizData[3].options[a4] || "",
-                    a5: quizData[4].options[a5] || "",
-                    a6: quizData[5].options[a6] || ""
-                })
-            }).catch(err => console.log("Google Sheet sync notice:", err));
-        } catch (e) {
-            console.log("Sheet push skipped.");
-        }
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    if (secs === 0) {
+        return `${mins} min`;
     }
-}
-
-/**
- * ADMIN PORTAL LOGIC
- */
-function openAdminModal() {
-    const modal = document.getElementById("admin-modal");
-    if (!modal) return;
-    modal.classList.remove("hidden");
-
-    const authBox = document.getElementById("admin-auth-box");
-    const dashBox = document.getElementById("admin-dashboard");
-    const passInput = document.getElementById("admin-pass");
-    const errBox = document.getElementById("admin-error");
-
-    if (errBox) errBox.classList.add("hidden");
-
-    if (state.isAdminLoggedIn) {
-        authBox.classList.add("hidden");
-        dashBox.classList.remove("hidden");
-        renderAdminLeaderboard();
-    } else {
-        authBox.classList.remove("hidden");
-        dashBox.classList.add("hidden");
-        if (passInput) {
-            passInput.value = "";
-            passInput.focus();
-        }
-    }
-}
-
-function closeAdminModal() {
-    const modal = document.getElementById("admin-modal");
-    if (modal) modal.classList.add("hidden");
-}
-
-function handleAdminLogin(event) {
-    event.preventDefault();
-    const passInput = document.getElementById("admin-pass");
-    const errBox = document.getElementById("admin-error");
-    const authBox = document.getElementById("admin-auth-box");
-    const dashBox = document.getElementById("admin-dashboard");
-
-    if (passInput && passInput.value === ADMIN_PASSCODE) {
-        state.isAdminLoggedIn = true;
-        if (errBox) errBox.classList.add("hidden");
-        authBox.classList.add("hidden");
-        dashBox.classList.remove("hidden");
-        renderAdminLeaderboard();
-    } else {
-        if (errBox) errBox.classList.remove("hidden");
-    }
-}
-
-/**
- * Render Real Participants in Admin Panel
- */
-function renderAdminLeaderboard() {
-    const tbody = document.getElementById("admin-lb-tbody");
-    const countBadge = document.getElementById("participant-count-badge");
-    if (!tbody) return;
-
-    let participants = [];
-    try {
-        const stored = localStorage.getItem("real_mind_spectrum_participants");
-        if (stored) participants = JSON.parse(stored);
-    } catch (e) {
-        participants = [];
-    }
-
-    if (countBadge) countBadge.textContent = `${participants.length} Submissions`;
-
-    tbody.innerHTML = "";
-
-    if (participants.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding: 24px;">No actual quiz submissions yet. When users complete the quiz, their real records will appear here.</td></tr>`;
-        return;
-    }
-
-    // Sort by Score descending
-    participants.sort((a, b) => b.score - a.score);
-
-    participants.forEach((item, index) => {
-        const rank = index + 1;
-        const tr = document.createElement("tr");
-
-        let rankClass = "rank-other";
-        if (rank === 1) rankClass = "rank-1";
-        else if (rank === 2) rankClass = "rank-2";
-        else if (rank === 3) rankClass = "rank-3";
-
-        tr.innerHTML = `
-            <td><span class="rank-badge ${rankClass}">#${rank}</span></td>
-            <td><strong>${escapeHtml(item.name)}</strong></td>
-            <td>${escapeHtml(item.archetype)}</td>
-            <td><span class="metric-score">${item.score}%</span></td>
-            <td><span style="color: var(--text-muted); font-size: 0.8rem;">${escapeHtml(item.date)}</span></td>
-        `;
-
-        tbody.appendChild(tr);
-    });
-}
-
-/**
- * Clear All Real Data
- */
-function clearRealData() {
-    if (confirm("Are you sure you want to clear all real participant records?")) {
-        localStorage.removeItem("real_mind_spectrum_participants");
-        renderAdminLeaderboard();
-    }
-}
-
-/**
- * Export Real Participants to CSV / Excel File
- */
-function exportParticipantsToCSV() {
-    let participants = [];
-    try {
-        const stored = localStorage.getItem("real_mind_spectrum_participants");
-        if (stored) participants = JSON.parse(stored);
-    } catch (e) {
-        participants = [];
-    }
-
-    if (!participants || participants.length === 0) {
-        alert("No real participant records found to export.");
-        return;
-    }
-
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "Rank,Participant Name,Mindset Archetype,Awareness Score %,Date\n";
-
-    participants.sort((a, b) => b.score - a.score);
-
-    participants.forEach((item, idx) => {
-        const row = [
-            idx + 1,
-            `"${item.name.replace(/"/g, '""')}"`,
-            `"${item.archetype.replace(/"/g, '""')}"`,
-            `${item.score}%`,
-            `"${item.date}"`
-        ];
-        csvContent += row.join(",") + "\n";
-    });
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `MindSpectrum_Real_Participants_${new Date().toISOString().split("T")[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    return `${mins} min ${secs} sec`;
 }
 
 /**
@@ -684,6 +492,8 @@ function renderAnswersSummary() {
 function resetQuiz() {
     state.currentQuestionIndex = 0;
     state.answers = {};
+    state.startTime = null;
+    state.endTime = null;
     switchView("welcome-view");
 
     const inputName = document.getElementById("username");
