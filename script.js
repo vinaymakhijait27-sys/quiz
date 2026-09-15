@@ -1,22 +1,14 @@
 /**
- * Mind & Perception Assessment - Script with Google Sheets & Live Leaderboard Integration
- * --------------------------------------------------------------------------------------
- * HOW TO CONNECT TO YOUR OWN GOOGLE SHEET (1 MINUTE SETUP):
- * 1. Create a Google Sheet on Google Drive.
- * 2. Click extensions -> Apps Script.
- * 3. Paste this code into Apps Script:
- * 
- *    function doPost(e) {
- *      var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
- *      var data = JSON.parse(e.postData.contents);
- *      sheet.appendRow([data.timestamp, data.name, data.archetype, data.score, data.a1, data.a2, data.a3, data.a4, data.a5, data.a6]);
- *      return ContentService.createTextOutput(JSON.stringify({"result": "success"})).setMimeType(ContentService.MimeType.JSON);
- *    }
- * 
- * 4. Click Deploy -> New Deployment -> Select type "Web app".
- * 5. Set "Who has access" to "Anyone".
- * 6. Copy the Web App URL and paste it into GOOGLE_SHEET_WEB_APP_URL below!
+ * Mind & Perception Assessment - Script
+ * ------------------------------------
+ * Features:
+ * - Clean Data: Stores ONLY actual real submissions (No fake/dummy seed data).
+ * - Admin Portal: Leaderboard & CSV Export are strictly restricted to Admin (Passcode: admin123).
+ * - Privacy: Regular users only see their own personal results.
  */
+
+// Admin Passcode Configuration
+const ADMIN_PASSCODE = "admin123";
 
 // OPTIONAL: Paste your Google Apps Script Web App URL here to auto-sync submissions to Google Sheets
 const GOOGLE_SHEET_WEB_APP_URL = ""; 
@@ -25,20 +17,9 @@ const GOOGLE_SHEET_WEB_APP_URL = "";
 const state = {
     userName: "",
     currentQuestionIndex: 0,
-    answers: {} // Maps question index to selected option index
+    answers: {}, // Maps question index to selected option index
+    isAdminLoggedIn: false
 };
-
-// Default seed participants for the Leaderboard showcase
-const defaultParticipants = [
-    { name: "Priya Sharma", archetype: "The Conscious Visionary", score: 92, date: "2026-09-15" },
-    { name: "David Chen", archetype: "The Centered Strategist", score: 88, date: "2026-09-14" },
-    { name: "Sophia Martinez", archetype: "The Intuitive Explorer", score: 85, date: "2026-09-14" },
-    { name: "Rohan Verma", archetype: "The Practical Realist", score: 82, date: "2026-09-13" },
-    { name: "Ananya Mehta", archetype: "The Balanced Observer", score: 80, date: "2026-09-13" },
-    { name: "Marcus Vance", archetype: "The Conscious Visionary", score: 78, date: "2026-09-12" },
-    { name: "Emily Watson", archetype: "The Centered Strategist", score: 75, date: "2026-09-11" },
-    { name: "Kabir Nair", archetype: "The Intuitive Explorer", score: 72, date: "2026-09-10" }
-];
 
 // Quiz Questions & Options Data
 const quizData = [
@@ -108,13 +89,6 @@ const quizData = [
 document.addEventListener("DOMContentLoaded", () => {
     const yearEl = document.getElementById("year");
     if (yearEl) yearEl.textContent = new Date().getFullYear();
-    
-    // Seed initial leaderboard storage if empty
-    if (!localStorage.getItem("mind_spectrum_participants")) {
-        localStorage.setItem("mind_spectrum_participants", JSON.stringify(defaultParticipants));
-    }
-    
-    renderWelcomeLeaderboard();
 });
 
 /**
@@ -146,18 +120,6 @@ function switchView(viewId) {
     if (target) {
         target.classList.add("active");
         window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-}
-
-/**
- * Toggle Welcome Screen Leaderboard Box
- */
-function toggleWelcomeLeaderboard() {
-    const box = document.getElementById("welcome-leaderboard-box");
-    if (!box) return;
-    box.classList.toggle("hidden");
-    if (!box.classList.contains("hidden")) {
-        renderWelcomeLeaderboard();
     }
 }
 
@@ -232,12 +194,11 @@ function renderQuestion() {
 }
 
 /**
- * Handle Option Selection
+ * Handle Option Selection (Manual navigation only)
  */
 function selectOption(optIdx) {
     state.answers[state.currentQuestionIndex] = optIdx;
 
-    // Re-render options to reflect selection highlight
     const cards = document.querySelectorAll(".option-card");
     cards.forEach((card, i) => {
         if (i === optIdx) {
@@ -249,7 +210,6 @@ function selectOption(optIdx) {
         }
     });
 
-    // Enable next button
     const btnNext = document.getElementById("btn-next");
     btnNext.disabled = false;
 }
@@ -287,8 +247,6 @@ function calculateAndShowResults() {
     const a6 = state.answers[5]; // Q6 Love & Freedom
 
     // 1. Calculate Dimension Scores (0 - 100)
-    
-    // Dimension 1: Mind Power & Intention (Q1 & Q2)
     let intentScore = 50;
     if (a1 === 0) intentScore += 25;
     else if (a1 === 1) intentScore += 15;
@@ -298,21 +256,18 @@ function calculateAndShowResults() {
     else if (a2 === 1) intentScore += 20;
     else if (a2 === 2) intentScore += 10;
 
-    // Dimension 2: Clarity & Mental Peace (Q3)
     let clarityScore = 50;
     if (a3 === 2) clarityScore = 95;
     else if (a3 === 3) clarityScore = 75;
     else if (a3 === 1) clarityScore = 55;
     else if (a3 === 0) clarityScore = 40;
 
-    // Dimension 3: Action & Growth Philosophy (Q4)
     let actionScore = 50;
     if (a4 === 3) actionScore = 95;
     else if (a4 === 2) actionScore = 85;
     else if (a4 === 1) actionScore = 70;
     else if (a4 === 0) actionScore = 50;
 
-    // Dimension 4: Emotional Autonomy & Love (Q5 & Q6)
     let loveScore = 50;
     if (a5 === 2) loveScore += 25;
     else if (a5 === 3) loveScore += 20;
@@ -322,14 +277,13 @@ function calculateAndShowResults() {
     else if (a6 === 2) loveScore += 25;
     else if (a6 === 3) loveScore += 20;
 
-    // Calculate Overall Awareness Index
     const overallScore = Math.round((intentScore + clarityScore + actionScore + loveScore) / 4);
 
     // 2. Evaluate Archetype
     const archetype = determineArchetype(a1, a2, a3, a4, a5, a6, intentScore, clarityScore, actionScore, loveScore);
 
-    // 3. Save Participant Record to Local Storage & Google Sheets
-    saveParticipantRecord(state.userName, archetype.title, overallScore, a1, a2, a3, a4, a5, a6);
+    // 3. Save ONLY ACTUAL REAL Participant Record
+    saveRealParticipantRecord(state.userName, archetype.title, overallScore, a1, a2, a3, a4, a5, a6);
 
     // Render Archetype Card
     document.getElementById("archetype-title").textContent = archetype.title;
@@ -344,9 +298,6 @@ function calculateAndShowResults() {
     // Render Detailed Insights List
     renderInsights(a1, a2, a3, a4, a5, a6);
 
-    // Render Top 10 Leaderboard Table
-    renderResultsLeaderboard(state.userName);
-
     // Render Answers Summary List
     renderAnswersSummary();
 
@@ -355,9 +306,9 @@ function calculateAndShowResults() {
 }
 
 /**
- * Save Participant Record to Local Database & Google Sheets Webhook
+ * Save Real Participant Record (No fake data)
  */
-function saveParticipantRecord(name, archetypeTitle, score, a1, a2, a3, a4, a5, a6) {
+function saveRealParticipantRecord(name, archetypeTitle, score, a1, a2, a3, a4, a5, a6) {
     const today = new Date().toISOString().split("T")[0];
     const newRecord = {
         name: name,
@@ -367,20 +318,19 @@ function saveParticipantRecord(name, archetypeTitle, score, a1, a2, a3, a4, a5, 
         answers: [a1, a2, a3, a4, a5, a6]
     };
 
-    // 1. Save to Local Storage Database
-    let participants = [];
+    let realParticipants = [];
     try {
-        const stored = localStorage.getItem("mind_spectrum_participants");
-        if (stored) participants = JSON.parse(stored);
+        const stored = localStorage.getItem("real_mind_spectrum_participants");
+        if (stored) realParticipants = JSON.parse(stored);
     } catch (e) {
-        participants = defaultParticipants;
+        realParticipants = [];
     }
 
-    // Append new participant
-    participants.push(newRecord);
-    localStorage.setItem("mind_spectrum_participants", JSON.stringify(participants));
+    // Append new real participant
+    realParticipants.push(newRecord);
+    localStorage.setItem("real_mind_spectrum_participants", JSON.stringify(realParticipants));
 
-    // 2. If Google Sheet Web App URL is provided, send payload to Google Sheet
+    // Optional Google Sheet Sync
     if (GOOGLE_SHEET_WEB_APP_URL && GOOGLE_SHEET_WEB_APP_URL.trim().length > 0) {
         try {
             fetch(GOOGLE_SHEET_WEB_APP_URL, {
@@ -407,45 +357,88 @@ function saveParticipantRecord(name, archetypeTitle, score, a1, a2, a3, a4, a5, 
 }
 
 /**
- * Fetch and Sort Top 10 Participants
+ * ADMIN PORTAL LOGIC
  */
-function getTop10Participants() {
+function openAdminModal() {
+    const modal = document.getElementById("admin-modal");
+    if (!modal) return;
+    modal.classList.remove("hidden");
+
+    const authBox = document.getElementById("admin-auth-box");
+    const dashBox = document.getElementById("admin-dashboard");
+    const passInput = document.getElementById("admin-pass");
+    const errBox = document.getElementById("admin-error");
+
+    if (errBox) errBox.classList.add("hidden");
+
+    if (state.isAdminLoggedIn) {
+        authBox.classList.add("hidden");
+        dashBox.classList.remove("hidden");
+        renderAdminLeaderboard();
+    } else {
+        authBox.classList.remove("hidden");
+        dashBox.classList.add("hidden");
+        if (passInput) {
+            passInput.value = "";
+            passInput.focus();
+        }
+    }
+}
+
+function closeAdminModal() {
+    const modal = document.getElementById("admin-modal");
+    if (modal) modal.classList.add("hidden");
+}
+
+function handleAdminLogin(event) {
+    event.preventDefault();
+    const passInput = document.getElementById("admin-pass");
+    const errBox = document.getElementById("admin-error");
+    const authBox = document.getElementById("admin-auth-box");
+    const dashBox = document.getElementById("admin-dashboard");
+
+    if (passInput && passInput.value === ADMIN_PASSCODE) {
+        state.isAdminLoggedIn = true;
+        if (errBox) errBox.classList.add("hidden");
+        authBox.classList.add("hidden");
+        dashBox.classList.remove("hidden");
+        renderAdminLeaderboard();
+    } else {
+        if (errBox) errBox.classList.remove("hidden");
+    }
+}
+
+/**
+ * Render Real Participants in Admin Panel
+ */
+function renderAdminLeaderboard() {
+    const tbody = document.getElementById("admin-lb-tbody");
+    const countBadge = document.getElementById("participant-count-badge");
+    if (!tbody) return;
+
     let participants = [];
     try {
-        const stored = localStorage.getItem("mind_spectrum_participants");
+        const stored = localStorage.getItem("real_mind_spectrum_participants");
         if (stored) participants = JSON.parse(stored);
     } catch (e) {
-        participants = defaultParticipants;
+        participants = [];
     }
 
-    if (!participants || participants.length === 0) {
-        participants = defaultParticipants;
+    if (countBadge) countBadge.textContent = `${participants.length} Submissions`;
+
+    tbody.innerHTML = "";
+
+    if (participants.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding: 24px;">No actual quiz submissions yet. When users complete the quiz, their real records will appear here.</td></tr>`;
+        return;
     }
 
     // Sort by Score descending
     participants.sort((a, b) => b.score - a.score);
 
-    // Return Top 10
-    return participants.slice(0, 10);
-}
-
-/**
- * Render Top 10 Leaderboard in Results View
- */
-function renderResultsLeaderboard(currentUserName) {
-    const tbody = document.getElementById("results-lb-tbody");
-    if (!tbody) return;
-
-    const top10 = getTop10Participants();
-    tbody.innerHTML = "";
-
-    top10.forEach((item, index) => {
+    participants.forEach((item, index) => {
         const rank = index + 1;
         const tr = document.createElement("tr");
-
-        if (currentUserName && item.name.toLowerCase() === currentUserName.toLowerCase()) {
-            tr.className = "current-user-row";
-        }
 
         let rankClass = "rank-other";
         if (rank === 1) rankClass = "rank-1";
@@ -465,53 +458,35 @@ function renderResultsLeaderboard(currentUserName) {
 }
 
 /**
- * Render Preview Leaderboard in Welcome Screen
+ * Clear All Real Data
  */
-function renderWelcomeLeaderboard() {
-    const container = document.getElementById("welcome-lb-list");
-    if (!container) return;
-
-    const top10 = getTop10Participants().slice(0, 5); // Show top 5 in preview
-    container.innerHTML = "";
-
-    top10.forEach((item, index) => {
-        const div = document.createElement("div");
-        div.style.display = "flex";
-        div.style.justifySpaceBetween = "space-between";
-        div.style.alignItems = "center";
-        div.style.padding = "6px 0";
-        div.style.fontSize = "0.85rem";
-        div.style.borderBottom = "1px solid var(--border-color)";
-
-        div.innerHTML = `
-            <div><strong>#${index + 1} ${escapeHtml(item.name)}</strong> <span style="color:var(--text-muted);">(${escapeHtml(item.archetype)})</span></div>
-            <div style="font-weight:700; color:var(--primary);">${item.score}%</div>
-        `;
-        container.appendChild(div);
-    });
+function clearRealData() {
+    if (confirm("Are you sure you want to clear all real participant records?")) {
+        localStorage.removeItem("real_mind_spectrum_participants");
+        renderAdminLeaderboard();
+    }
 }
 
 /**
- * Export All Participants to CSV / Excel File
+ * Export Real Participants to CSV / Excel File
  */
 function exportParticipantsToCSV() {
     let participants = [];
     try {
-        const stored = localStorage.getItem("mind_spectrum_participants");
+        const stored = localStorage.getItem("real_mind_spectrum_participants");
         if (stored) participants = JSON.parse(stored);
     } catch (e) {
-        participants = defaultParticipants;
+        participants = [];
     }
 
     if (!participants || participants.length === 0) {
-        alert("No participant records found to export.");
+        alert("No real participant records found to export.");
         return;
     }
 
     let csvContent = "data:text/csv;charset=utf-8,";
     csvContent += "Rank,Participant Name,Mindset Archetype,Awareness Score %,Date\n";
 
-    // Sort by score
     participants.sort((a, b) => b.score - a.score);
 
     participants.forEach((item, idx) => {
@@ -528,7 +503,7 @@ function exportParticipantsToCSV() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `MindSpectrum_Top_Participants_${new Date().toISOString().split("T")[0]}.csv`);
+    link.setAttribute("download", `MindSpectrum_Real_Participants_${new Date().toISOString().split("T")[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -608,7 +583,6 @@ function renderInsights(a1, a2, a3, a4, a5, a6) {
 
     const insights = [];
 
-    // Insight 1: Perception of Mind & Words
     if (a1 === 0 || a2 === 0 || a2 === 1) {
         insights.push({
             title: "High Intentionality & Mindful Speech",
@@ -621,7 +595,6 @@ function renderInsights(a1, a2, a3, a4, a5, a6) {
         });
     }
 
-    // Insight 2: Mental State & Focus
     if (a3 === 2) {
         insights.push({
             title: "Clean & Centered Focus",
@@ -644,7 +617,6 @@ function renderInsights(a1, a2, a3, a4, a5, a6) {
         });
     }
 
-    // Insight 3: Transformation Strategy
     if (a4 === 3) {
         insights.push({
             title: "Action-Driven Growth Engine",
@@ -662,7 +634,6 @@ function renderInsights(a1, a2, a3, a4, a5, a6) {
         });
     }
 
-    // Insight 4: Relationship & Autonomy Paradigm
     if (a6 === 0 || a6 === 2) {
         insights.push({
             title: "Expansive View of Love",
