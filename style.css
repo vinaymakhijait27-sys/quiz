@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MINIMALISTIC WHITE & BLUE THEME - MINDSPECTRUM QUIZ
+   MINIMALISTIC WHITE & BLUE THEME - MINDSPECTRUM QUIZ WITH LEADERBOARD
    ========================================================================== */
 
 :root {
@@ -22,6 +22,14 @@
     --border-color: #e2e8f0;
     --border-hover: #93c5fd;
     --border-focus: #2563eb;
+    
+    /* Ranks */
+    --rank-gold: #d97706;
+    --rank-gold-bg: #fef3c7;
+    --rank-silver: #475569;
+    --rank-silver-bg: #f1f5f9;
+    --rank-bronze: #b45309;
+    --rank-bronze-bg: #ffedd5;
     
     /* Shadows */
     --shadow-sm: 0 2px 4px rgba(37, 99, 235, 0.03);
@@ -98,7 +106,7 @@ body {
 /* Layout Container */
 .container {
     width: 100%;
-    max-width: 680px;
+    max-width: 720px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -280,12 +288,56 @@ body {
     color: var(--primary);
 }
 
+.leaderboard-preview-bar {
+    margin-top: 18px;
+    text-align: center;
+}
+
+.btn-text-link {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+.btn-text-link:hover {
+    background: var(--bg-subtle);
+    text-decoration: underline;
+}
+
+.welcome-lb-box {
+    margin-top: 16px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 16px;
+}
+
+.welcome-lb-box.hidden {
+    display: none;
+}
+
+.lb-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
 /* Buttons */
 .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     font-family: inherit;
     font-size: 0.95rem;
     font-weight: 600;
@@ -297,10 +349,17 @@ body {
     transition: var(--transition);
     text-decoration: none;
     touch-action: manipulation;
+    white-space: nowrap;
 }
 
 .btn:active {
     transform: scale(0.98);
+}
+
+.btn-sm {
+    padding: 8px 14px;
+    min-height: 38px;
+    font-size: 0.825rem;
 }
 
 .btn-primary {
@@ -473,7 +532,7 @@ body {
 }
 
 /* ==========================================================================
-   VIEW 3: RESULTS SCREEN
+   VIEW 3: RESULTS SCREEN & LEADERBOARD
    ========================================================================== */
 .results-header {
     text-align: center;
@@ -572,6 +631,10 @@ body {
     gap: 8px;
 }
 
+.section-heading.mb-0 {
+    margin-bottom: 0;
+}
+
 .section-heading::before {
     content: "";
     width: 4px;
@@ -661,6 +724,106 @@ body {
     color: var(--text-muted);
 }
 
+/* LEADERBOARD TABLE STYLING */
+.leaderboard-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow-sm);
+}
+
+.lb-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.lb-sub {
+    font-size: 0.825rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.lb-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.875rem;
+}
+
+.lb-table th {
+    padding: 12px 14px;
+    background: var(--bg-subtle);
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 0.775rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1.5px solid var(--border-color);
+}
+
+.lb-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.lb-table tr:last-child td {
+    border-bottom: none;
+}
+
+.lb-table tr.current-user-row {
+    background-color: var(--bg-selected);
+    font-weight: 600;
+}
+
+/* Rank Badges */
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.8rem;
+}
+
+.rank-1 {
+    background: var(--rank-gold-bg);
+    color: var(--rank-gold);
+    border: 1px solid #fcd34d;
+}
+
+.rank-2 {
+    background: var(--rank-silver-bg);
+    color: var(--rank-silver);
+    border: 1px solid #cbd5e1;
+}
+
+.rank-3 {
+    background: var(--rank-bronze-bg);
+    color: var(--rank-bronze);
+    border: 1px solid #fdba74;
+}
+
+.rank-other {
+    background: var(--bg-subtle);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+}
+
 /* Answer Summary Review List */
 .answers-summary-list {
     display: flex;
@@ -715,9 +878,7 @@ body {
     padding: 8px 0;
 }
 
-/* ==========================================================================
-   MOBILE RESPONSIVE BREAKPOINTS
-   ========================================================================== */
+/* Mobile Responsive */
 @media (max-width: 640px) {
     body {
         padding: 12px 10px;
@@ -815,11 +976,15 @@ body {
     .results-actions .btn {
         width: 100%;
     }
+
+    .leaderboard-section {
+        padding: 16px;
+    }
 }
 
 @media (max-width: 380px) {
     .header-tag {
-        display: none; /* Hide header tag on super small devices to keep clean header */
+        display: none;
     }
 
     .main-card {

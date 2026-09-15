@@ -74,7 +74,21 @@
                     </div>
                     <div class="feature-item">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        <span>Instant Results</span>
+                        <span>Live Leaderboard</span>
+                    </div>
+                </div>
+
+                <!-- PREVIEW LEADERBOARD LINK -->
+                <div class="leaderboard-preview-bar">
+                    <button type="button" class="btn-text-link" onclick="toggleWelcomeLeaderboard()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <span>View Top 10 Participants Leaderboard</span>
+                    </button>
+                </div>
+                <div id="welcome-leaderboard-box" class="welcome-lb-box hidden">
+                    <h3 class="lb-title">Top 10 Participants</h3>
+                    <div id="welcome-lb-list" class="lb-list">
+                        <!-- Dynamic Leaderboard list -->
                     </div>
                 </div>
             </section>
@@ -96,7 +110,7 @@
                     <p class="question-hint">Select the option that best resonates with your perspective:</p>
                     
                     <div id="options-container" class="options-grid">
-                        <!-- Options will be dynamically rendered here -->
+                        <!-- Options dynamically rendered -->
                     </div>
                 </div>
 
@@ -123,10 +137,10 @@
                 <div class="results-header">
                     <div class="completion-badge">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                        Assessment Completed
+                        Assessment Completed & Logged
                     </div>
                     <h1 class="results-title">Mindset Analysis for <span id="user-display-name" class="highlight-name">User</span></h1>
-                    <p class="results-subtitle">Based on your responses, here is a breakdown of your inner spectrum, mind state, and perceptual philosophy.</p>
+                    <p class="results-subtitle">Your responses have been evaluated and recorded. Here is your inner spectrum breakdown.</p>
                 </div>
 
                 <!-- Primary Archetype Card -->
@@ -184,12 +198,41 @@
                 </div>
 
                 <!-- Comprehensive Analysis Insights -->
-                <h3 class="section-heading">Detailed Insights & Insights Breakdown</h3>
+                <h3 class="section-heading">Detailed Insights</h3>
                 <div id="insights-container" class="insights-list">
-                    <!-- Dynamic insights rendered by JavaScript -->
+                    <!-- Dynamic insights -->
                 </div>
 
-                <!-- Responses Summary Accordion / Review -->
+                <!-- TOP 10 LEADERBOARD SECTION -->
+                <div class="leaderboard-section">
+                    <div class="lb-header">
+                        <h3 class="section-heading mb-0">🏆 Top 10 Participants Leaderboard</h3>
+                        <button class="btn btn-secondary btn-sm" onclick="exportParticipantsToCSV()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            <span>Download Excel / CSV</span>
+                        </button>
+                    </div>
+                    <p class="lb-sub">Live ranking based on overall Mindset Clarity & Awareness index across participants.</p>
+                    
+                    <div class="table-responsive">
+                        <table class="lb-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Participant Name</th>
+                                    <th>Mindset Archetype</th>
+                                    <th>Awareness Index</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="results-lb-tbody">
+                                <!-- Dynamic leaderboard rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Responses Summary Review -->
                 <h3 class="section-heading">Your Question & Answer Choices</h3>
                 <div id="answers-summary" class="answers-summary-list">
                     <!-- Dynamic answer summary -->
@@ -218,7 +261,7 @@
         </main>
         
         <footer class="app-footer">
-            <p>© <span id="year">2026</span> MindSpectrum Quiz. Crafted with clarity and simplicity.</p>
+            <p>© <span id="year">2026</span> MindSpectrum Quiz. Connected with Google Sheets & Live Leaderboard.</p>
         </footer>
     </div>
 

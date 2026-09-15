@@ -1,17 +1,46 @@
 /**
- * Mind & Perception Assessment - Script
- * High-performance, clean JavaScript logic for state management,
- * assessment scoring, archetype evaluation, and dynamic UI transitions.
+ * Mind & Perception Assessment - Script with Google Sheets & Live Leaderboard Integration
+ * --------------------------------------------------------------------------------------
+ * HOW TO CONNECT TO YOUR OWN GOOGLE SHEET (1 MINUTE SETUP):
+ * 1. Create a Google Sheet on Google Drive.
+ * 2. Click extensions -> Apps Script.
+ * 3. Paste this code into Apps Script:
+ * 
+ *    function doPost(e) {
+ *      var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+ *      var data = JSON.parse(e.postData.contents);
+ *      sheet.appendRow([data.timestamp, data.name, data.archetype, data.score, data.a1, data.a2, data.a3, data.a4, data.a5, data.a6]);
+ *      return ContentService.createTextOutput(JSON.stringify({"result": "success"})).setMimeType(ContentService.MimeType.JSON);
+ *    }
+ * 
+ * 4. Click Deploy -> New Deployment -> Select type "Web app".
+ * 5. Set "Who has access" to "Anyone".
+ * 6. Copy the Web App URL and paste it into GOOGLE_SHEET_WEB_APP_URL below!
  */
 
-// Global State
+// OPTIONAL: Paste your Google Apps Script Web App URL here to auto-sync submissions to Google Sheets
+const GOOGLE_SHEET_WEB_APP_URL = ""; 
+
+// Global Quiz State
 const state = {
     userName: "",
     currentQuestionIndex: 0,
     answers: {} // Maps question index to selected option index
 };
 
-// Quiz Questions & Options Data (Exactly as specified)
+// Default seed participants for the Leaderboard showcase
+const defaultParticipants = [
+    { name: "Priya Sharma", archetype: "The Conscious Visionary", score: 92, date: "2026-09-15" },
+    { name: "David Chen", archetype: "The Centered Strategist", score: 88, date: "2026-09-14" },
+    { name: "Sophia Martinez", archetype: "The Intuitive Explorer", score: 85, date: "2026-09-14" },
+    { name: "Rohan Verma", archetype: "The Practical Realist", score: 82, date: "2026-09-13" },
+    { name: "Ananya Mehta", archetype: "The Balanced Observer", score: 80, date: "2026-09-13" },
+    { name: "Marcus Vance", archetype: "The Conscious Visionary", score: 78, date: "2026-09-12" },
+    { name: "Emily Watson", archetype: "The Centered Strategist", score: 75, date: "2026-09-11" },
+    { name: "Kabir Nair", archetype: "The Intuitive Explorer", score: 72, date: "2026-09-10" }
+];
+
+// Quiz Questions & Options Data
 const quizData = [
     {
         id: 1,
@@ -79,6 +108,13 @@ const quizData = [
 document.addEventListener("DOMContentLoaded", () => {
     const yearEl = document.getElementById("year");
     if (yearEl) yearEl.textContent = new Date().getFullYear();
+    
+    // Seed initial leaderboard storage if empty
+    if (!localStorage.getItem("mind_spectrum_participants")) {
+        localStorage.setItem("mind_spectrum_participants", JSON.stringify(defaultParticipants));
+    }
+    
+    renderWelcomeLeaderboard();
 });
 
 /**
@@ -110,6 +146,18 @@ function switchView(viewId) {
     if (target) {
         target.classList.add("active");
         window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+}
+
+/**
+ * Toggle Welcome Screen Leaderboard Box
+ */
+function toggleWelcomeLeaderboard() {
+    const box = document.getElementById("welcome-leaderboard-box");
+    if (!box) return;
+    box.classList.toggle("hidden");
+    if (!box.classList.contains("hidden")) {
+        renderWelcomeLeaderboard();
     }
 }
 
@@ -213,7 +261,6 @@ function navigateQuestion(direction) {
     const newIdx = state.currentQuestionIndex + direction;
 
     if (newIdx >= quizData.length) {
-        // Calculate and Show Results
         calculateAndShowResults();
         return;
     }
@@ -225,7 +272,7 @@ function navigateQuestion(direction) {
 }
 
 /**
- * Calculate Archetype, Dimensions & Render Results
+ * Calculate Archetype, Dimensions, Save Participant & Render Results
  */
 function calculateAndShowResults() {
     const nameEl = document.getElementById("user-display-name");
@@ -243,44 +290,46 @@ function calculateAndShowResults() {
     
     // Dimension 1: Mind Power & Intention (Q1 & Q2)
     let intentScore = 50;
-    if (a1 === 0) intentScore += 25; // Yes, powerful
-    else if (a1 === 1) intentScore += 15; // Maybe
-    else if (a1 === 3) intentScore += 10; // Need evidence
-    else if (a1 === 2) intentScore += 0;  // Physical only
+    if (a1 === 0) intentScore += 25;
+    else if (a1 === 1) intentScore += 15;
+    else if (a1 === 3) intentScore += 10;
 
-    if (a2 === 0) intentScore += 25; // Fascinating
-    else if (a2 === 1) intentScore += 20; // Something to it
-    else if (a2 === 2) intentScore += 10; // Needs proof
-    else if (a2 === 3) intentScore += 0;  // Don't believe
+    if (a2 === 0) intentScore += 25;
+    else if (a2 === 1) intentScore += 20;
+    else if (a2 === 2) intentScore += 10;
 
     // Dimension 2: Clarity & Mental Peace (Q3)
     let clarityScore = 50;
-    if (a3 === 2) clarityScore = 95;      // Clean & Clear
-    else if (a3 === 3) clarityScore = 75; // Depends on situation
-    else if (a3 === 1) clarityScore = 55; // Overactive
-    else if (a3 === 0) clarityScore = 40; // Distracted
+    if (a3 === 2) clarityScore = 95;
+    else if (a3 === 3) clarityScore = 75;
+    else if (a3 === 1) clarityScore = 55;
+    else if (a3 === 0) clarityScore = 40;
 
     // Dimension 3: Action & Growth Philosophy (Q4)
     let actionScore = 50;
-    if (a4 === 3) actionScore = 95;      // Experience & practice
-    else if (a4 === 2) actionScore = 85; // Knowledge + Meditation
-    else if (a4 === 1) actionScore = 70; // Meditation & reflection
-    else if (a4 === 0) actionScore = 50; // Knowledge alone
+    if (a4 === 3) actionScore = 95;
+    else if (a4 === 2) actionScore = 85;
+    else if (a4 === 1) actionScore = 70;
+    else if (a4 === 0) actionScore = 50;
 
     // Dimension 4: Emotional Autonomy & Love (Q5 & Q6)
     let loveScore = 50;
-    if (a5 === 2) loveScore += 25; // Deeply connected
-    else if (a5 === 3) loveScore += 20; // Depends on relationship
-    else if (a5 === 1) loveScore += 10; // Losing independence
-    else if (a5 === 0) loveScore += 5;  // Giving control
+    if (a5 === 2) loveScore += 25;
+    else if (a5 === 3) loveScore += 20;
+    else if (a5 === 1) loveScore += 10;
 
-    if (a6 === 0) loveScore += 25; // Love gives freedom
-    else if (a6 === 2) loveScore += 25; // Both freedom & attachment
-    else if (a6 === 3) loveScore += 20; // Depends how you love
-    else if (a6 === 1) loveScore += 10; // Attachment creates dependency
+    if (a6 === 0) loveScore += 25;
+    else if (a6 === 2) loveScore += 25;
+    else if (a6 === 3) loveScore += 20;
+
+    // Calculate Overall Awareness Index
+    const overallScore = Math.round((intentScore + clarityScore + actionScore + loveScore) / 4);
 
     // 2. Evaluate Archetype
     const archetype = determineArchetype(a1, a2, a3, a4, a5, a6, intentScore, clarityScore, actionScore, loveScore);
+
+    // 3. Save Participant Record to Local Storage & Google Sheets
+    saveParticipantRecord(state.userName, archetype.title, overallScore, a1, a2, a3, a4, a5, a6);
 
     // Render Archetype Card
     document.getElementById("archetype-title").textContent = archetype.title;
@@ -295,11 +344,194 @@ function calculateAndShowResults() {
     // Render Detailed Insights List
     renderInsights(a1, a2, a3, a4, a5, a6);
 
+    // Render Top 10 Leaderboard Table
+    renderResultsLeaderboard(state.userName);
+
     // Render Answers Summary List
     renderAnswersSummary();
 
     // Show Results View
     switchView("results-view");
+}
+
+/**
+ * Save Participant Record to Local Database & Google Sheets Webhook
+ */
+function saveParticipantRecord(name, archetypeTitle, score, a1, a2, a3, a4, a5, a6) {
+    const today = new Date().toISOString().split("T")[0];
+    const newRecord = {
+        name: name,
+        archetype: archetypeTitle,
+        score: score,
+        date: today,
+        answers: [a1, a2, a3, a4, a5, a6]
+    };
+
+    // 1. Save to Local Storage Database
+    let participants = [];
+    try {
+        const stored = localStorage.getItem("mind_spectrum_participants");
+        if (stored) participants = JSON.parse(stored);
+    } catch (e) {
+        participants = defaultParticipants;
+    }
+
+    // Append new participant
+    participants.push(newRecord);
+    localStorage.setItem("mind_spectrum_participants", JSON.stringify(participants));
+
+    // 2. If Google Sheet Web App URL is provided, send payload to Google Sheet
+    if (GOOGLE_SHEET_WEB_APP_URL && GOOGLE_SHEET_WEB_APP_URL.trim().length > 0) {
+        try {
+            fetch(GOOGLE_SHEET_WEB_APP_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    timestamp: new Date().toLocaleString(),
+                    name: name,
+                    archetype: archetypeTitle,
+                    score: score + "%",
+                    a1: quizData[0].options[a1] || "",
+                    a2: quizData[1].options[a2] || "",
+                    a3: quizData[2].options[a3] || "",
+                    a4: quizData[3].options[a4] || "",
+                    a5: quizData[4].options[a5] || "",
+                    a6: quizData[5].options[a6] || ""
+                })
+            }).catch(err => console.log("Google Sheet sync notice:", err));
+        } catch (e) {
+            console.log("Sheet push skipped.");
+        }
+    }
+}
+
+/**
+ * Fetch and Sort Top 10 Participants
+ */
+function getTop10Participants() {
+    let participants = [];
+    try {
+        const stored = localStorage.getItem("mind_spectrum_participants");
+        if (stored) participants = JSON.parse(stored);
+    } catch (e) {
+        participants = defaultParticipants;
+    }
+
+    if (!participants || participants.length === 0) {
+        participants = defaultParticipants;
+    }
+
+    // Sort by Score descending
+    participants.sort((a, b) => b.score - a.score);
+
+    // Return Top 10
+    return participants.slice(0, 10);
+}
+
+/**
+ * Render Top 10 Leaderboard in Results View
+ */
+function renderResultsLeaderboard(currentUserName) {
+    const tbody = document.getElementById("results-lb-tbody");
+    if (!tbody) return;
+
+    const top10 = getTop10Participants();
+    tbody.innerHTML = "";
+
+    top10.forEach((item, index) => {
+        const rank = index + 1;
+        const tr = document.createElement("tr");
+
+        if (currentUserName && item.name.toLowerCase() === currentUserName.toLowerCase()) {
+            tr.className = "current-user-row";
+        }
+
+        let rankClass = "rank-other";
+        if (rank === 1) rankClass = "rank-1";
+        else if (rank === 2) rankClass = "rank-2";
+        else if (rank === 3) rankClass = "rank-3";
+
+        tr.innerHTML = `
+            <td><span class="rank-badge ${rankClass}">#${rank}</span></td>
+            <td><strong>${escapeHtml(item.name)}</strong></td>
+            <td>${escapeHtml(item.archetype)}</td>
+            <td><span class="metric-score">${item.score}%</span></td>
+            <td><span style="color: var(--text-muted); font-size: 0.8rem;">${escapeHtml(item.date)}</span></td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+}
+
+/**
+ * Render Preview Leaderboard in Welcome Screen
+ */
+function renderWelcomeLeaderboard() {
+    const container = document.getElementById("welcome-lb-list");
+    if (!container) return;
+
+    const top10 = getTop10Participants().slice(0, 5); // Show top 5 in preview
+    container.innerHTML = "";
+
+    top10.forEach((item, index) => {
+        const div = document.createElement("div");
+        div.style.display = "flex";
+        div.style.justifySpaceBetween = "space-between";
+        div.style.alignItems = "center";
+        div.style.padding = "6px 0";
+        div.style.fontSize = "0.85rem";
+        div.style.borderBottom = "1px solid var(--border-color)";
+
+        div.innerHTML = `
+            <div><strong>#${index + 1} ${escapeHtml(item.name)}</strong> <span style="color:var(--text-muted);">(${escapeHtml(item.archetype)})</span></div>
+            <div style="font-weight:700; color:var(--primary);">${item.score}%</div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+/**
+ * Export All Participants to CSV / Excel File
+ */
+function exportParticipantsToCSV() {
+    let participants = [];
+    try {
+        const stored = localStorage.getItem("mind_spectrum_participants");
+        if (stored) participants = JSON.parse(stored);
+    } catch (e) {
+        participants = defaultParticipants;
+    }
+
+    if (!participants || participants.length === 0) {
+        alert("No participant records found to export.");
+        return;
+    }
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Rank,Participant Name,Mindset Archetype,Awareness Score %,Date\n";
+
+    // Sort by score
+    participants.sort((a, b) => b.score - a.score);
+
+    participants.forEach((item, idx) => {
+        const row = [
+            idx + 1,
+            `"${item.name.replace(/"/g, '""')}"`,
+            `"${item.archetype.replace(/"/g, '""')}"`,
+            `${item.score}%`,
+            `"${item.date}"`
+        ];
+        csvContent += row.join(",") + "\n";
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `MindSpectrum_Top_Participants_${new Date().toISOString().split("T")[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 /**
@@ -485,7 +717,7 @@ function resetQuiz() {
 
     const inputName = document.getElementById("username");
     if (inputName) {
-        inputName.value = state.userName; // Keep previous name filled for convenience
+        inputName.value = state.userName;
         inputName.focus();
     }
 }
