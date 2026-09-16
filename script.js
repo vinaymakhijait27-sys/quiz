@@ -2,8 +2,8 @@
  * Mind & Perception Assessment - Script with Points Scoring & Millisecond Precision Timer
  * ----------------------------------------------------------------------------------------
  * Rules:
- * - Each question has 1 designated correct answer (+1 Point per correct answer).
- * - Total Maximum Score = 6 Points.
+ * - 10 Questions total.
+ * - 1 Point per correct answer (Maximum Total = 10 Points).
  * - Millisecond Precision Timer tracks exact completion speed.
  * - Single-Attempt assessment (No Retake option).
  */
@@ -84,6 +84,50 @@ const quizData = [
             "It depends on how you love"
         ],
         correctOption: 0 // "Love gives freedom"
+    },
+    {
+        id: 7,
+        question: "Where does the soul get its power?",
+        options: [
+            "Almighty",
+            "Mitochondria",
+            "Positive thoughts",
+            "All of the above"
+        ],
+        correctOption: 0 // "Almighty"
+    },
+    {
+        id: 8,
+        question: "What is common between the soul and the Supreme Soul?",
+        options: [
+            "Both are eternal",
+            "Both are self-luminous",
+            "Both are points of light",
+            "All of the above"
+        ],
+        correctOption: 3 // "All of the above"
+    },
+    {
+        id: 9,
+        question: "How is the soul different from the Supreme Soul?",
+        options: [
+            "Soul carries past karma; Supreme Soul does not",
+            "Supreme Soul is bodied; soul is bodiless",
+            "There are many Gods",
+            "Soul incarnates; Supreme Soul is womb-born"
+        ],
+        correctOption: 0 // "Soul carries past karma; Supreme Soul does not"
+    },
+    {
+        id: 10,
+        question: "What is the true form of God?",
+        options: [
+            "Incorporeal",
+            "Point of light",
+            "Eternal",
+            "All of the above"
+        ],
+        correctOption: 3 // "All of the above"
     }
 ];
 
@@ -248,7 +292,7 @@ function calculateAndShowResults() {
         }
     });
 
-    const maxPoints = quizData.length; // 6
+    const maxPoints = quizData.length; // 10
     const scorePercent = Math.round((totalPoints / maxPoints) * 100);
 
     // Calculate exact millisecond duration
@@ -272,10 +316,10 @@ function calculateAndShowResults() {
     if (totalPoints === maxPoints) {
         if (scoreTitleEl) scoreTitleEl.textContent = "Perfect Score! 🌟";
         if (scoreDescEl) scoreDescEl.textContent = `Outstanding! You scored a perfect ${totalPoints} out of ${maxPoints} points (${scorePercent}%).`;
-    } else if (totalPoints >= 4) {
+    } else if (totalPoints >= 7) {
         if (scoreTitleEl) scoreTitleEl.textContent = "Great Job! 🎯";
         if (scoreDescEl) scoreDescEl.textContent = `Well done! You scored ${totalPoints} out of ${maxPoints} points (${scorePercent}%).`;
-    } else if (totalPoints >= 2) {
+    } else if (totalPoints >= 4) {
         if (scoreTitleEl) scoreTitleEl.textContent = "Good Attempt! 👍";
         if (scoreDescEl) scoreDescEl.textContent = `You scored ${totalPoints} out of ${maxPoints} points (${scorePercent}%).`;
     } else {
@@ -290,37 +334,28 @@ function calculateAndShowResults() {
     const a4 = state.answers[3]; // Q4 Knowledge to Change
     const a5 = state.answers[4]; // Q5 Attachment Feeling
     const a6 = state.answers[5]; // Q6 Love & Freedom
+    const a7 = state.answers[6]; // Q7 Soul Power
+    const a8 = state.answers[7]; // Q8 Soul vs Supreme Common
+    const a9 = state.answers[8]; // Q9 Soul vs Supreme Diff
+    const a10 = state.answers[9]; // Q10 Form of God
 
     // Calculate Dimension Scores (0 - 100)
     let intentScore = 50;
-    if (a1 === 0) intentScore += 25;
-    else if (a1 === 1) intentScore += 15;
-    else if (a1 === 3) intentScore += 10;
-
-    if (a2 === 0) intentScore += 25;
-    else if (a2 === 1) intentScore += 20;
-    else if (a2 === 2) intentScore += 10;
+    if (a1 === 0) intentScore += 20;
+    if (a2 === 0 || a2 === 2) intentScore += 15;
+    if (a7 === 0) intentScore += 15;
 
     let clarityScore = 50;
-    if (a3 === 2) clarityScore = 95;
-    else if (a3 === 3) clarityScore = 75;
-    else if (a3 === 1) clarityScore = 55;
-    else if (a3 === 0) clarityScore = 40;
+    if (a3 === 3 || a3 === 2) clarityScore += 25;
+    if (a8 === 3) clarityScore += 25;
 
     let actionScore = 50;
-    if (a4 === 3) actionScore = 95;
-    else if (a4 === 2) actionScore = 85;
-    else if (a4 === 1) actionScore = 70;
-    else if (a4 === 0) actionScore = 50;
+    if (a4 === 2) actionScore += 25;
+    if (a9 === 0) actionScore += 25;
 
     let loveScore = 50;
-    if (a5 === 2) loveScore += 25;
-    else if (a5 === 3) loveScore += 20;
-    else if (a5 === 1) loveScore += 10;
-
+    if (a5 === 0) loveScore += 25;
     if (a6 === 0) loveScore += 25;
-    else if (a6 === 2) loveScore += 25;
-    else if (a6 === 3) loveScore += 20;
 
     // Evaluate Archetype
     const archetype = determineArchetype(a1, a2, a3, a4, a5, a6, intentScore, clarityScore, actionScore, loveScore);
@@ -365,10 +400,10 @@ function determineArchetype(a1, a2, a3, a4, a5, a6, intentScore, clarityScore, a
     if (intentScore >= 75 && clarityScore >= 70) {
         return {
             title: "The Conscious Visionary",
-            description: "You possess a profound awareness of the relationship between internal thoughts and external reality. With a clear mind and open perspective, you recognize that true change begins within and transforms outward through experience.",
-            intentDesc: "High belief in the power of conscious thought and intentional energy.",
+            description: "You possess a profound awareness of the relationship between internal thoughts, spiritual truth, and external reality. With a clear mind and open perspective, you recognize that true wisdom transforms outward through practice and divine alignment.",
+            intentDesc: "High belief in the power of conscious thought and spiritual energy.",
             clarityDesc: "Strong mental clarity with a peaceful, focused internal state.",
-            actionDesc: "Grounded in practical execution and mindful integration.",
+            actionDesc: "Grounded in practical execution and mindful meditation.",
             loveDesc: "Views love as a force of liberation and meaningful connection."
         };
     } else if (intentScore < 50 && actionScore >= 80) {
@@ -383,7 +418,7 @@ function determineArchetype(a1, a2, a3, a4, a5, a6, intentScore, clarityScore, a
     } else if (a3 === 2 && actionScore >= 80) {
         return {
             title: "The Centered Strategist",
-            description: "Calm, focused, and discerning. You maintain a clean mental space and understand that knowledge paired with practice produces meaningful life transformations.",
+            description: "Calm, focused, and discerning. You maintain a clean mental space and understand that knowledge paired with meditation produces meaningful life transformations.",
             intentDesc: "Open-minded yet balanced in evaluating subtle influence.",
             clarityDesc: "Exceptional calm, focus, and heightened situational awareness.",
             actionDesc: "Executes efficiently by turning insight into habitual practice.",
@@ -392,8 +427,8 @@ function determineArchetype(a1, a2, a3, a4, a5, a6, intentScore, clarityScore, a
     } else if (a1 <= 1 && a2 <= 1 && (a5 === 2 || a6 === 2 || a6 === 0)) {
         return {
             title: "The Intuitive Explorer",
-            description: "Fascinated by the hidden connections in nature and human interaction. You view mind and emotion not as isolated occurrences, but as interconnected currents flowing through life.",
-            intentDesc: "High receptivity to subtle intentions, words, and resonance.",
+            description: "Fascinated by the hidden connections in nature, soul, and human interaction. You view mind and spiritual emotion as interconnected currents flowing through life.",
+            intentDesc: "High receptivity to subtle intentions, words, and divine resonance.",
             clarityDesc: "Dynamic mental state responsive to environment and mood.",
             actionDesc: "Believes inner reflection and outer practice work in harmony.",
             loveDesc: "Embraces love as a expanding field of freedom and deep unity."
@@ -444,37 +479,22 @@ function renderInsights(a1, a2, a3, a4, a5, a6) {
         });
     }
 
-    if (a3 === 2) {
+    if (a3 === 2 || a3 === 3) {
         insights.push({
             title: "Clean & Centered Focus",
-            text: "Your mind operates primarily from a clean and clear baseline. This mental clarity provides you with emotional resilience, keen decision-making capabilities, and peace."
-        });
-    } else if (a3 === 1) {
-        insights.push({
-            title: "High Cognitive Speed & Processing",
-            text: "Having an overactive mind means you process vast information simultaneously. Channelling this energy through structured reflection can convert mental noise into profound creativity."
-        });
-    } else if (a3 === 0) {
-        insights.push({
-            title: "Seeking Mental Stillness",
-            text: "Experiencing a distracted mind often signals a need to declutter digital and environmental stimuli. Mindfulness practices will help stabilize your attention."
+            text: "Your mind operates primarily from a clear or adaptable baseline. This mental clarity provides you with emotional resilience, keen decision-making capabilities, and peace."
         });
     } else {
         insights.push({
-            title: "Contextual Adaptability",
-            text: "Your mental state fluidly adapts to your environment. Harnessing conscious routines can help maintain focus when challenging situations arise."
+            title: "High Cognitive Speed & Processing",
+            text: "Having an active mind means you process vast information simultaneously. Channelling this energy through structured reflection can convert mental noise into profound creativity."
         });
     }
 
-    if (a4 === 3) {
+    if (a4 === 2 || a4 === 3) {
         insights.push({
-            title: "Action-Driven Growth Engine",
-            text: "You wisely identify direct experience and active practice as the true catalysts for change. You understand that theoretical knowledge remains potential energy until put into motion."
-        });
-    } else if (a4 === 2) {
-        insights.push({
-            title: "Holistic Mind-Body Synergy",
-            text: "By pairing knowledge with meditation, you bridge the gap between intellectual understanding and deep internal conviction."
+            title: "Action & Meditation Synergy",
+            text: "You wisely identify Meditation and practice as key catalysts for transformation. You understand that theoretical knowledge remains potential energy until synthesized internally."
         });
     } else {
         insights.push({
