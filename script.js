@@ -1,6 +1,6 @@
 /**
- * Mind & Perception Assessment - Script with Points Scoring & Millisecond Precision Timer
- * ----------------------------------------------------------------------------------------
+ * aarambh_recall Assessment - Script with 10 Spiritual Questions & Point Scoring
+ * -------------------------------------------------------------------------------
  * Rules:
  * - 10 Questions total.
  * - 1 Point per correct answer (Maximum Total = 10 Points).
@@ -17,76 +17,10 @@ const state = {
     endTime: null
 };
 
-// Quiz Questions & Options Data with Correct Answers
+// 10 Spiritual & Mindset Questions Data with Correct Options
 const quizData = [
     {
         id: 1,
-        question: "Do you think our thoughts and words can influence the world around us?",
-        options: [
-            "Yes, the mind has a powerful influence",
-            "Maybe, but I’m not sure",
-            "No, only physical factors matter",
-            "I need more evidence"
-        ],
-        correctOption: 0 // "Yes, the mind has a powerful influence"
-    },
-    {
-        id: 2,
-        question: "What do you think about the claim that positive words create more beautiful water-crystal patterns?",
-        options: [
-            "I find it fascinating",
-            "There could be something to it",
-            "Interesting, but needs scientific proof",
-            "I don’t believe it"
-        ],
-        correctOption: 2 // "Interesting, but needs scientific proof"
-    },
-    {
-        id: 3,
-        question: "Which state best describes your mind most often?",
-        options: [
-            "Distracted — constantly jumping between thoughts",
-            "Overactive — thinking about everything at once",
-            "Clean & Clear — calm, focused and aware",
-            "It depends on the situation"
-        ],
-        correctOption: 3 // "It depends on the situation"
-    },
-    {
-        id: 4,
-        question: "What do you think transforms knowledge into actual change?",
-        options: [
-            "Knowledge alone",
-            "Meditation & reflection",
-            "Knowledge + Meditation",
-            "Experience & practice"
-        ],
-        correctOption: 2 // "Knowledge + Meditation"
-    },
-    {
-        id: 5,
-        question: "What does attachment feel like to you?",
-        options: [
-            "Giving someone control over your emotions",
-            "Losing your sense of independence",
-            "Feeling deeply connected",
-            "Depends on the relationship"
-        ],
-        correctOption: 0 // "Giving someone control over your emotions"
-    },
-    {
-        id: 6,
-        question: "Which statement do you agree with more?",
-        options: [
-            "Love gives freedom",
-            "Attachment creates dependency",
-            "Love can have both freedom & attachment",
-            "It depends on how you love"
-        ],
-        correctOption: 0 // "Love gives freedom"
-    },
-    {
-        id: 7,
         question: "Where does the soul get its power?",
         options: [
             "Almighty",
@@ -97,7 +31,7 @@ const quizData = [
         correctOption: 0 // "Almighty"
     },
     {
-        id: 8,
+        id: 2,
         question: "What is common between the soul and the Supreme Soul?",
         options: [
             "Both are eternal",
@@ -108,7 +42,7 @@ const quizData = [
         correctOption: 3 // "All of the above"
     },
     {
-        id: 9,
+        id: 3,
         question: "How is the soul different from the Supreme Soul?",
         options: [
             "Soul carries past karma; Supreme Soul does not",
@@ -119,15 +53,81 @@ const quizData = [
         correctOption: 0 // "Soul carries past karma; Supreme Soul does not"
     },
     {
-        id: 10,
-        question: "What is the true form of God?",
+        id: 4,
+        question: "Which English term is paired with the Hindi phrase \"Sarva Shaktivaan\"?",
         options: [
-            "Incorporeal",
-            "Point of light",
-            "Eternal",
-            "All of the above"
+            "Supreme",
+            "Omniscient",
+            "Almighty",
+            "Beyond All"
         ],
-        correctOption: 3 // "All of the above"
+        correctOption: 2 // "Almighty"
+    },
+    {
+        id: 5,
+        question: "Which negative trait is illustrated by a character surrounded by a ring of fire?",
+        options: [
+            "Anger",
+            "Ego",
+            "Lust",
+            "Greed"
+        ],
+        correctOption: 2 // "Lust"
+    },
+    {
+        id: 6,
+        question: "Which of the following traits is NOT listed as one of the five elements which opposes the role of supreme?",
+        options: [
+            "Attachment",
+            "Greed",
+            "Ego",
+            "Jealousy"
+        ],
+        correctOption: 3 // "Jealousy"
+    },
+    {
+        id: 7,
+        question: "Which of the following is a way to build a personal relationship with the Divine as a friend?",
+        options: [
+            "Avoiding quiet contemplation",
+            "Sharing your personal secrets",
+            "Relying only on physical strength",
+            "Keeping your feelings hidden"
+        ],
+        correctOption: 1 // "Sharing your personal secrets"
+    },
+    {
+        id: 8,
+        question: "According to the ideas of spiritual connection, what do you \"receive\" when you connect with the Divine?",
+        options: [
+            "Material wealth",
+            "Inner power and strength",
+            "Immediate answers to every wish",
+            "Physical rewards"
+        ],
+        correctOption: 1 // "Inner power and strength"
+    },
+    {
+        id: 9,
+        question: "Who is beyond the effects of birth and death, joy and sorrow, sin and virtue?",
+        options: [
+            "Supreme Soul",
+            "Material elements",
+            "Soul",
+            "Lower mortal concepts"
+        ],
+        correctOption: 0 // "Supreme Soul"
+    },
+    {
+        id: 10,
+        question: "Who is the owner of the body?",
+        options: [
+            "Soul",
+            "Supreme Soul",
+            "Mind",
+            "Heart"
+        ],
+        correctOption: 0 // "Soul"
     }
 ];
 
@@ -323,55 +323,31 @@ function calculateAndShowResults() {
         if (scoreTitleEl) scoreTitleEl.textContent = "Good Attempt! 👍";
         if (scoreDescEl) scoreDescEl.textContent = `You scored ${totalPoints} out of ${maxPoints} points (${scorePercent}%).`;
     } else {
-        if (scoreTitleEl) scoreTitleEl.textContent = "Thought-Provoking Assessment 💡";
+        if (scoreTitleEl) scoreTitleEl.textContent = "Keep Learning & Growing 💡";
         if (scoreDescEl) scoreDescEl.textContent = `You scored ${totalPoints} out of ${maxPoints} points (${scorePercent}%).`;
     }
 
-    // Extract raw choices
-    const a1 = state.answers[0]; // Q1 Mind Influence
-    const a2 = state.answers[1]; // Q2 Water Crystal
-    const a3 = state.answers[2]; // Q3 State of Mind
-    const a4 = state.answers[3]; // Q4 Knowledge to Change
-    const a5 = state.answers[4]; // Q5 Attachment Feeling
-    const a6 = state.answers[5]; // Q6 Love & Freedom
-    const a7 = state.answers[6]; // Q7 Soul Power
-    const a8 = state.answers[7]; // Q8 Soul vs Supreme Common
-    const a9 = state.answers[8]; // Q9 Soul vs Supreme Diff
-    const a10 = state.answers[9]; // Q10 Form of God
-
-    // Calculate Dimension Scores (0 - 100)
-    let intentScore = 50;
-    if (a1 === 0) intentScore += 20;
-    if (a2 === 0 || a2 === 2) intentScore += 15;
-    if (a7 === 0) intentScore += 15;
-
-    let clarityScore = 50;
-    if (a3 === 3 || a3 === 2) clarityScore += 25;
-    if (a8 === 3) clarityScore += 25;
-
-    let actionScore = 50;
-    if (a4 === 2) actionScore += 25;
-    if (a9 === 0) actionScore += 25;
-
-    let loveScore = 50;
-    if (a5 === 0) loveScore += 25;
-    if (a6 === 0) loveScore += 25;
+    // Dimension score metrics based on points
+    let spiritualScore = Math.round((totalPoints / maxPoints) * 100);
+    let focusScore = Math.min(100, Math.round(spiritualScore * 1.05));
+    let wisdomScore = Math.min(100, Math.round(spiritualScore * 0.95));
+    let purityScore = Math.min(100, Math.round(spiritualScore * 1.02));
 
     // Evaluate Archetype
-    const archetype = determineArchetype(a1, a2, a3, a4, a5, a6, intentScore, clarityScore, actionScore, loveScore);
+    const archetype = determineArchetype(totalPoints, scorePercent);
 
     // Render Archetype Card
     document.getElementById("archetype-title").textContent = archetype.title;
     document.getElementById("archetype-description").textContent = archetype.description;
 
     // Render Dimension Metric Cards
-    updateMetricBar("intent", intentScore, archetype.intentDesc);
-    updateMetricBar("clarity", clarityScore, archetype.clarityDesc);
-    updateMetricBar("action", actionScore, archetype.actionDesc);
-    updateMetricBar("love", loveScore, archetype.loveDesc);
+    updateMetricBar("intent", spiritualScore, archetype.intentDesc);
+    updateMetricBar("clarity", focusScore, archetype.clarityDesc);
+    updateMetricBar("action", wisdomScore, archetype.actionDesc);
+    updateMetricBar("love", purityScore, archetype.loveDesc);
 
     // Render Detailed Insights List
-    renderInsights(a1, a2, a3, a4, a5, a6);
+    renderInsights(totalPoints);
 
     // Render Question & Answer Breakdown with Correct/Incorrect Badges
     renderAnswersSummary();
@@ -394,53 +370,44 @@ function formatTimeTakenWithMs(totalMs) {
 }
 
 /**
- * Determine Mindset Archetype
+ * Determine Mindset Archetype based on score
  */
-function determineArchetype(a1, a2, a3, a4, a5, a6, intentScore, clarityScore, actionScore, loveScore) {
-    if (intentScore >= 75 && clarityScore >= 70) {
+function determineArchetype(points, percent) {
+    if (points >= 9) {
         return {
-            title: "The Conscious Visionary",
-            description: "You possess a profound awareness of the relationship between internal thoughts, spiritual truth, and external reality. With a clear mind and open perspective, you recognize that true wisdom transforms outward through practice and divine alignment.",
-            intentDesc: "High belief in the power of conscious thought and spiritual energy.",
-            clarityDesc: "Strong mental clarity with a peaceful, focused internal state.",
-            actionDesc: "Grounded in practical execution and mindful meditation.",
-            loveDesc: "Views love as a force of liberation and meaningful connection."
+            title: "Spiritual Master & Enlightened Soul",
+            description: "You possess extraordinary spiritual clarity and profound knowledge regarding the Soul, Supreme Soul, and divine relationships. You recognize the Soul as the true owner of the body.",
+            intentDesc: "Deep alignment with divine power & supreme truth.",
+            clarityDesc: "Unshakable spiritual focus and mental purity.",
+            actionDesc: "Harmonious union between divine wisdom and life.",
+            loveDesc: "Pure spiritual love and complete inner freedom."
         };
-    } else if (intentScore < 50 && actionScore >= 80) {
+    } else if (points >= 7) {
         return {
-            title: "The Practical Realist",
-            description: "Grounded and analytical, you rely on empirical evidence, physical facts, and real-world experience. You value clear action and tangible results over abstract theories.",
-            intentDesc: "Focuses heavily on observable physical phenomena and evidence.",
-            clarityDesc: "Pragmatic mental processing focused on tangible reality.",
-            actionDesc: "Strong emphasis on direct experience and practical iteration.",
-            loveDesc: "Values personal autonomy, clear boundaries, and functional relationships."
+            title: "The Conscious Seeker",
+            description: "You have strong spiritual understanding and awareness of divine connection. You appreciate the eternal nature of the soul and the supreme power of the Divine.",
+            intentDesc: "High awareness of spiritual principles.",
+            clarityDesc: "Clear focus with growing meditative discernment.",
+            actionDesc: "Applies spiritual knowledge effectively.",
+            loveDesc: "Strong personal relationship with the Divine."
         };
-    } else if (a3 === 2 && actionScore >= 80) {
+    } else if (points >= 4) {
         return {
-            title: "The Centered Strategist",
-            description: "Calm, focused, and discerning. You maintain a clean mental space and understand that knowledge paired with meditation produces meaningful life transformations.",
-            intentDesc: "Open-minded yet balanced in evaluating subtle influence.",
-            clarityDesc: "Exceptional calm, focus, and heightened situational awareness.",
-            actionDesc: "Executes efficiently by turning insight into habitual practice.",
-            loveDesc: "Maintains healthy balance between emotional intimacy and independence."
-        };
-    } else if (a1 <= 1 && a2 <= 1 && (a5 === 2 || a6 === 2 || a6 === 0)) {
-        return {
-            title: "The Intuitive Explorer",
-            description: "Fascinated by the hidden connections in nature, soul, and human interaction. You view mind and spiritual emotion as interconnected currents flowing through life.",
-            intentDesc: "High receptivity to subtle intentions, words, and divine resonance.",
-            clarityDesc: "Dynamic mental state responsive to environment and mood.",
-            actionDesc: "Believes inner reflection and outer practice work in harmony.",
-            loveDesc: "Embraces love as a expanding field of freedom and deep unity."
+            title: "The Developing Explorer",
+            description: "You understand fundamental spiritual concepts, though some deeper distinctions between Soul, Karma, and Supreme Soul offer great opportunity for deeper contemplation.",
+            intentDesc: "Balanced understanding of spiritual concepts.",
+            clarityDesc: "Steady progress in mental focus.",
+            actionDesc: "Encouraged to deepen spiritual practice.",
+            loveDesc: "Growing connection with inner power."
         };
     } else {
         return {
-            title: "The Balanced Observer",
-            description: "Thoughtful and adaptable. You navigate life's questions with nuance—recognizing that situations vary and that wisdom comes from synthesizing multiple perspectives.",
-            intentDesc: "Balanced view of mental intention and physical factors.",
-            clarityDesc: "Adaptable mindset that shifts thoughtfully with context.",
-            actionDesc: "Recognizes that real change requires both reflection and experience.",
-            loveDesc: "Understands the nuanced dance between freedom, connection, and growth."
+            title: "The Curious Beginner",
+            description: "You are starting your spiritual journey. Reviewing the answer breakdown will help you understand the eternal nature of the Soul and Divine connection.",
+            intentDesc: "Initial exploration of spiritual concepts.",
+            clarityDesc: "Seeking deeper mental stillness.",
+            actionDesc: "Great opportunity to build spiritual knowledge.",
+            loveDesc: "Opening heart to divine friendship."
         };
     }
 }
@@ -461,59 +428,24 @@ function updateMetricBar(idKey, score, descText) {
 /**
  * Render Tailored Insights
  */
-function renderInsights(a1, a2, a3, a4, a5, a6) {
+function renderInsights(points) {
     const container = document.getElementById("insights-container");
     container.innerHTML = "";
 
-    const insights = [];
-
-    if (a1 === 0 || a2 === 0 || a2 === 1) {
-        insights.push({
-            title: "High Intentionality & Mindful Speech",
-            text: "You naturally lean towards believing that human thought and spoken words hold vibrant subtle power. Being intentional with your language and internal dialogue will yield positive reflections in your environment."
-        });
-    } else {
-        insights.push({
-            title: "Empirical Discerning Mindset",
-            text: "You maintain a high standard for scientific verification before accepting claims regarding mental influence. This skepticism keeps you anchored in solid reality."
-        });
-    }
-
-    if (a3 === 2 || a3 === 3) {
-        insights.push({
-            title: "Clean & Centered Focus",
-            text: "Your mind operates primarily from a clear or adaptable baseline. This mental clarity provides you with emotional resilience, keen decision-making capabilities, and peace."
-        });
-    } else {
-        insights.push({
-            title: "High Cognitive Speed & Processing",
-            text: "Having an active mind means you process vast information simultaneously. Channelling this energy through structured reflection can convert mental noise into profound creativity."
-        });
-    }
-
-    if (a4 === 2 || a4 === 3) {
-        insights.push({
-            title: "Action & Meditation Synergy",
-            text: "You wisely identify Meditation and practice as key catalysts for transformation. You understand that theoretical knowledge remains potential energy until synthesized internally."
-        });
-    } else {
-        insights.push({
-            title: "Reflective Synthesis",
-            text: "You place deep value on contemplation and mental processing as essential precursors to meaningful personal evolution."
-        });
-    }
-
-    if (a6 === 0 || a6 === 2) {
-        insights.push({
-            title: "Expansive View of Love",
-            text: "You perceive genuine love not as a cage of obligation, but as an empowering foundation that grants freedom while fostering profound connection."
-        });
-    } else {
-        insights.push({
-            title: "Protective Emotional Boundaries",
-            text: "You are acutely aware of how attachment can lead to emotional dependency. Maintaining distinct individuality is crucial to your peace of mind."
-        });
-    }
+    const insights = [
+        {
+            title: "Eternal Nature of the Soul",
+            text: "The Soul is the true owner of the body—eternal, self-luminous, and a point of light. Unlike the Supreme Soul who remains beyond karma and birth-death cycles, the soul carries past karma and incarnates."
+        },
+        {
+            title: "Sarva Shaktivaan (Almighty)",
+            text: "The Supreme Soul is Almighty, incorporeal, and eternal. Connecting with the Divine as a friend through sharing your personal secrets fills the soul with inner power and strength."
+        },
+        {
+            title: "Overcoming Vices",
+            text: "Lust is a major vice illustrated by being surrounded by a ring of fire. Recognizing and overcoming negative traits leads to true emotional freedom and spiritual liberation."
+        }
+    ];
 
     insights.forEach(item => {
         const div = document.createElement("div");
