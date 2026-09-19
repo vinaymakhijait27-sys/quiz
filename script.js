@@ -1,9 +1,9 @@
 /**
- * aarambh_recall Assessment - Script with 10 Spiritual Questions & Point Scoring
- * -------------------------------------------------------------------------------
+ * aarambh_recall Assessment - Script with 9 Growth & Discipline Questions
+ * -----------------------------------------------------------------------
  * Rules:
- * - 10 Questions total.
- * - 1 Point per correct answer (Maximum Total = 10 Points).
+ * - 9 Questions total.
+ * - 1 Point per correct answer (Maximum Total = 9 Points).
  * - Millisecond Precision Timer tracks exact completion speed.
  * - Single-Attempt assessment (No Retake option).
  */
@@ -17,117 +17,106 @@ const state = {
     endTime: null
 };
 
-// 10 Spiritual & Mindset Questions Data with Correct Options
+// 9 Daily Growth & Discipline Questions Data with Correct Options
 const quizData = [
     {
         id: 1,
-        question: "Where does the soul get its power?",
+        question: "What should we do with our morning time? ☀️",
         options: [
-            "Almighty",
-            "Mitochondria",
-            "Positive thoughts",
-            "All of the above"
+            "Waste it",
+            "Delay our tasks",
+            "Use it efficiently",
+            "Avoid planning"
         ],
-        correctOption: 0 // "Almighty"
+        correctOption: 2 // "Use it efficiently"
     },
     {
         id: 2,
-        question: "What is common between the soul and the Supreme Soul?",
+        question: "What does 1% daily growth show? 📈",
         options: [
-            "Both are eternal",
-            "Both are self-luminous",
-            "Both are points of light",
-            "All of the above"
+            "Growth happens overnight",
+            "Small progress adds up",
+            "Effort has no value",
+            "Change is impossible"
         ],
-        correctOption: 3 // "All of the above"
+        correctOption: 1 // "Small progress adds up"
     },
     {
         id: 3,
-        question: "How is the soul different from the Supreme Soul?",
+        question: "What can keep us away from growth?",
         options: [
-            "Soul carries past karma; Supreme Soul does not",
-            "Supreme Soul is bodied; soul is bodiless",
-            "There are many Gods",
-            "Soul incarnates; Supreme Soul is womb-born"
+            "Self-awareness",
+            "Comfort zone",
+            "Consistent effort",
+            "Positive habits"
         ],
-        correctOption: 0 // "Soul carries past karma; Supreme Soul does not"
+        correctOption: 1 // "Comfort zone"
     },
     {
         id: 4,
-        question: "Which English term is paired with the Hindi phrase \"Sarva Shaktivaan\"?",
+        question: "What is the result of consistent small efforts?",
         options: [
-            "Supreme",
-            "Omniscient",
-            "Almighty",
-            "Beyond All"
+            "Long-term growth",
+            "Instant success",
+            "No noticeable change",
+            "Guaranteed perfection"
         ],
-        correctOption: 2 // "Almighty"
+        correctOption: 0 // "Long-term growth"
     },
     {
         id: 5,
-        question: "Which negative trait is illustrated by a character surrounded by a ring of fire?",
+        question: "Why do we need help during change?",
         options: [
-            "Anger",
-            "Ego",
-            "Lust",
-            "Greed"
+            "To avoid responsibility",
+            "To remain dependent",
+            "To make change easier",
+            "To escape effort"
         ],
-        correctOption: 2 // "Lust"
+        correctOption: 2 // "To make change easier"
     },
     {
         id: 6,
-        question: "Which of the following traits is NOT listed as one of the five elements which opposes the role of supreme?",
+        question: "What does \"Golden Time\" mean? ⏳",
         options: [
-            "Attachment",
-            "Greed",
-            "Ego",
-            "Jealousy"
+            "Using time wisely",
+            "Sleeping longer",
+            "Avoiding responsibilities",
+            "Delaying important work"
         ],
-        correctOption: 3 // "Jealousy"
+        correctOption: 0 // "Using time wisely"
     },
     {
         id: 7,
-        question: "Which of the following is a way to build a personal relationship with the Divine as a friend?",
+        question: "What makes change easier? 🌱",
         options: [
-            "Avoiding quiet contemplation",
-            "Sharing your personal secrets",
-            "Relying only on physical strength",
-            "Keeping your feelings hidden"
+            "Taking external help",
+            "Staying in comfort zone",
+            "Avoiding challenges",
+            "Waiting for change"
         ],
-        correctOption: 1 // "Sharing your personal secrets"
+        correctOption: 0 // "Taking external help"
     },
     {
         id: 8,
-        question: "According to the ideas of spiritual connection, what do you \"receive\" when you connect with the Divine?",
+        question: "Which of these helps in maintaining a disciplined daily routine?",
         options: [
-            "Material wealth",
-            "Inner power and strength",
-            "Immediate answers to every wish",
-            "Physical rewards"
+            "Consistency",
+            "Procrastination",
+            "Irregular sleep",
+            "Skipping activities"
         ],
-        correctOption: 1 // "Inner power and strength"
+        correctOption: 0 // "Consistency"
     },
     {
         id: 9,
-        question: "Who is beyond the effects of birth and death, joy and sorrow, sin and virtue?",
+        question: "Which habit can help you start your day with discipline?",
         options: [
-            "Supreme Soul",
-            "Material elements",
-            "Soul",
-            "Lower mortal concepts"
+            "Staying in bed",
+            "Waking up early",
+            "Using your phone first",
+            "Skipping your routine"
         ],
-        correctOption: 0 // "Supreme Soul"
-    },
-    {
-        id: 10,
-        question: "Who is the owner of the body?",
-        options: [
-            "Soul",
-            "Supreme Soul",
-            "Mind",
-            "Heart"
-        ],
-        correctOption: 0 // "Soul"
+        correctOption: 1 // "Waking up early"
     }
 ];
 
@@ -292,7 +281,7 @@ function calculateAndShowResults() {
         }
     });
 
-    const maxPoints = quizData.length; // 10
+    const maxPoints = quizData.length; // 9
     const scorePercent = Math.round((totalPoints / maxPoints) * 100);
 
     // Calculate exact millisecond duration
@@ -314,24 +303,24 @@ function calculateAndShowResults() {
     const scoreDescEl = document.getElementById("score-summary-text");
 
     if (totalPoints === maxPoints) {
-        if (scoreTitleEl) scoreTitleEl.textContent = "Perfect Score! 🌟";
+        if (scoreTitleEl) scoreTitleEl.textContent = "Disciplined Master! 🌟";
         if (scoreDescEl) scoreDescEl.textContent = `Outstanding! You scored a perfect ${totalPoints} out of ${maxPoints} points (${scorePercent}%).`;
     } else if (totalPoints >= 7) {
-        if (scoreTitleEl) scoreTitleEl.textContent = "Great Job! 🎯";
-        if (scoreDescEl) scoreDescEl.textContent = `Well done! You scored ${totalPoints} out of ${maxPoints} points (${scorePercent}%).`;
+        if (scoreTitleEl) scoreTitleEl.textContent = "High Achiever! 🎯";
+        if (scoreDescEl) scoreDescEl.textContent = `Great job! You scored ${totalPoints} out of ${maxPoints} points (${scorePercent}%).`;
     } else if (totalPoints >= 4) {
-        if (scoreTitleEl) scoreTitleEl.textContent = "Good Attempt! 👍";
-        if (scoreDescEl) scoreDescEl.textContent = `You scored ${totalPoints} out of ${maxPoints} points (${scorePercent}%).`;
+        if (scoreTitleEl) scoreTitleEl.textContent = "Growing Practitioner! 👍";
+        if (scoreDescEl) scoreDescEl.textContent = `Good effort! You scored ${totalPoints} out of ${maxPoints} points (${scorePercent}%).`;
     } else {
-        if (scoreTitleEl) scoreTitleEl.textContent = "Keep Learning & Growing 💡";
+        if (scoreTitleEl) scoreTitleEl.textContent = "Build Daily Habits 💡";
         if (scoreDescEl) scoreDescEl.textContent = `You scored ${totalPoints} out of ${maxPoints} points (${scorePercent}%).`;
     }
 
     // Dimension score metrics based on points
-    let spiritualScore = Math.round((totalPoints / maxPoints) * 100);
-    let focusScore = Math.min(100, Math.round(spiritualScore * 1.05));
-    let wisdomScore = Math.min(100, Math.round(spiritualScore * 0.95));
-    let purityScore = Math.min(100, Math.round(spiritualScore * 1.02));
+    let timeEfficiency = Math.round((totalPoints / maxPoints) * 100);
+    let consistency = Math.min(100, Math.round(timeEfficiency * 1.05));
+    let resilience = Math.min(100, Math.round(timeEfficiency * 0.95));
+    let routineDiscipline = Math.min(100, Math.round(timeEfficiency * 1.02));
 
     // Evaluate Archetype
     const archetype = determineArchetype(totalPoints, scorePercent);
@@ -341,10 +330,10 @@ function calculateAndShowResults() {
     document.getElementById("archetype-description").textContent = archetype.description;
 
     // Render Dimension Metric Cards
-    updateMetricBar("intent", spiritualScore, archetype.intentDesc);
-    updateMetricBar("clarity", focusScore, archetype.clarityDesc);
-    updateMetricBar("action", wisdomScore, archetype.actionDesc);
-    updateMetricBar("love", purityScore, archetype.loveDesc);
+    updateMetricBar("intent", timeEfficiency, archetype.intentDesc);
+    updateMetricBar("clarity", consistency, archetype.clarityDesc);
+    updateMetricBar("action", resilience, archetype.actionDesc);
+    updateMetricBar("love", routineDiscipline, archetype.loveDesc);
 
     // Render Detailed Insights List
     renderInsights(totalPoints);
@@ -373,41 +362,41 @@ function formatTimeTakenWithMs(totalMs) {
  * Determine Mindset Archetype based on score
  */
 function determineArchetype(points, percent) {
-    if (points >= 9) {
+    if (points >= 8) {
         return {
-            title: "Spiritual Master & Enlightened Soul",
-            description: "You possess extraordinary spiritual clarity and profound knowledge regarding the Soul, Supreme Soul, and divine relationships. You recognize the Soul as the true owner of the body.",
-            intentDesc: "Deep alignment with divine power & supreme truth.",
-            clarityDesc: "Unshakable spiritual focus and mental purity.",
-            actionDesc: "Harmonious union between divine wisdom and life.",
-            loveDesc: "Pure spiritual love and complete inner freedom."
+            title: "Disciplined Master & High Performer",
+            description: "You possess a strong commitment to 1% daily compounding growth, early morning discipline, time efficiency, and stepping out of your comfort zone to achieve long-term mastery.",
+            intentDesc: "Exceptional time management & morning discipline.",
+            clarityDesc: "Unshakable consistency and small daily wins.",
+            actionDesc: "Proactively seeks guidance & steps out of comfort zone.",
+            loveDesc: "Master of early rising and routine execution."
         };
-    } else if (points >= 7) {
+    } else if (points >= 6) {
         return {
-            title: "The Conscious Seeker",
-            description: "You have strong spiritual understanding and awareness of divine connection. You appreciate the eternal nature of the soul and the supreme power of the Divine.",
-            intentDesc: "High awareness of spiritual principles.",
-            clarityDesc: "Clear focus with growing meditative discernment.",
-            actionDesc: "Applies spiritual knowledge effectively.",
-            loveDesc: "Strong personal relationship with the Divine."
+            title: "Consistent Growth Practitioner",
+            description: "You appreciate the value of golden time, early morning routines, and daily progress. Continuing to eliminate procrastination will propel you to peak performance.",
+            intentDesc: "High awareness of time value & morning efficiency.",
+            clarityDesc: "Steady habit consistency and effort.",
+            actionDesc: "Open to seeking help during key changes.",
+            loveDesc: "Solid foundation in structured daily habits."
         };
     } else if (points >= 4) {
         return {
-            title: "The Developing Explorer",
-            description: "You understand fundamental spiritual concepts, though some deeper distinctions between Soul, Karma, and Supreme Soul offer great opportunity for deeper contemplation.",
-            intentDesc: "Balanced understanding of spiritual concepts.",
-            clarityDesc: "Steady progress in mental focus.",
-            actionDesc: "Encouraged to deepen spiritual practice.",
-            loveDesc: "Growing connection with inner power."
+            title: "Emerging Habit Builder",
+            description: "You recognize the core principles of personal growth. Focusing on waking up early and consistently making small efforts will compound your results significantly.",
+            intentDesc: "Growing awareness of morning time management.",
+            clarityDesc: "Developing 1% daily progress momentum.",
+            actionDesc: "Learning to step outside comfort zones.",
+            loveDesc: "Building regular daily discipline."
         };
     } else {
         return {
-            title: "The Curious Beginner",
-            description: "You are starting your spiritual journey. Reviewing the answer breakdown will help you understand the eternal nature of the Soul and Divine connection.",
-            intentDesc: "Initial exploration of spiritual concepts.",
-            clarityDesc: "Seeking deeper mental stillness.",
-            actionDesc: "Great opportunity to build spiritual knowledge.",
-            loveDesc: "Opening heart to divine friendship."
+            title: "Habit Pioneer & Future Achiever",
+            description: "You are at the beginning of building your optimal routine. Reviewing the answer breakdown will help you understand the power of waking early and consistency.",
+            intentDesc: "First steps toward structured time management.",
+            clarityDesc: "Building momentum for daily progress.",
+            actionDesc: "Opportunity to embrace external guidance.",
+            loveDesc: "Ready to establish morning discipline."
         };
     }
 }
@@ -434,16 +423,16 @@ function renderInsights(points) {
 
     const insights = [
         {
-            title: "Eternal Nature of the Soul",
-            text: "The Soul is the true owner of the body—eternal, self-luminous, and a point of light. Unlike the Supreme Soul who remains beyond karma and birth-death cycles, the soul carries past karma and incarnates."
+            title: "The Power of 1% Daily Growth",
+            text: "Small progress compounds massively over time. Consistent small efforts lead to remarkable long-term growth that far surpasses overnight bursts."
         },
         {
-            title: "Sarva Shaktivaan (Almighty)",
-            text: "The Supreme Soul is Almighty, incorporeal, and eternal. Connecting with the Divine as a friend through sharing your personal secrets fills the soul with inner power and strength."
+            title: "Golden Time & Morning Discipline",
+            text: "Using your morning 'Golden Time' efficiently and waking up early sets a disciplined tone for your entire day and eliminates wasteful delays."
         },
         {
-            title: "Overcoming Vices",
-            text: "Lust is a major vice illustrated by being surrounded by a ring of fire. Recognizing and overcoming negative traits leads to true emotional freedom and spiritual liberation."
+            title: "Breaking Free from Comfort Zones",
+            text: "Comfort zones block personal growth. Embracing challenges and taking external help makes navigating change easier and far more effective."
         }
     ];
 
