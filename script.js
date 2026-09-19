@@ -117,6 +117,17 @@ const quizData = [
             "Skipping your routine"
         ],
         correctOption: 1 // "Waking up early"
+    },
+    {
+        id: 10,
+        question: "What should we do when we observe a change?",
+        options: [
+            "Ignore it",
+            "Understand and accept it",
+            "Resist it",
+            "Avoid it"
+        ],
+        correctOption: 1 // "Understand and accept it"
     }
 ];
 
